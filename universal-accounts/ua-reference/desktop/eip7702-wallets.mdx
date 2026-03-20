@@ -1,0 +1,116 @@
+---
+title: "EIP-7702 Compatible Embedded Wallets"
+sidebarTitle: "7702 Compatible Wallets"
+description: "Which embedded wallet providers support EIP-7702 delegation with Universal Accounts."
+---
+
+EIP-7702 mode is the default and recommended way to use Universal Accounts. It upgrades a user's existing EOA in-place—no new address, no asset migration—by delegating execution to Particle's Universal Account contract via a Type-4 transaction.
+
+However, **not all wallets can produce the authorization signature** required for this delegation. Type-4 transactions carry an `authorizationList` field that must be signed by the EOA's private key. Standard JSON-RPC wallets (MetaMask, Rabby, etc.) do not expose this primitive, so they cannot be used in 7702 mode.
+
+<Warning>
+  **EIP-7702 mode requires an embedded (WaaS) wallet.**
+
+  JSON-RPC wallets do not support the `signAuthorization` call needed to create Type-4 transactions. If you need to support those wallets, use [Smart Account mode](/universal-accounts/ua-reference/desktop/web#smart-account-mode-json-rpc-wallets) instead.
+</Warning>
+
+The following embedded wallet providers have been verified to work with Particle's EIP-7702 Universal Account implementation:
+
+| Provider | Signing API | Auth method |
+|----------|-------------|-------------|
+| Dynamic (WaaS) | `waasConnector.signAuthorization()` | `isDynamicWaasConnector()` guard required |
+| Magic | `magic.wallet.sign7702Authorization()` | `magic.wallet.send7702Transaction()` handles Type-4 tx |
+| Privy | `signAuthorization()` hook | Returns `r, s, yParity`; serialize via `ethers.Signature` |
+
+---
+
+## How Delegation Works (Any Provider)
+
+Regardless of the embedded wallet you use, the delegation flow follows the same structure:
+
+```
+1. Check delegation status
+   → universalAccount.getEIP7702Deployments()
+
+2. Get the authorization parameters for each chain that needs delegation
+   → universalAccount.getEIP7702Auth([chainId])
+
+3. Sign the authorization with the embedded wallet's 7702 API
+   → provider.signAuthorization({ address, chainId, nonce })
+
+4. Send a Type-4 transaction carrying the authorizationList
+   → walletClient.sendTransaction({ authorizationList: [...] })
+
+5. Sign the transaction rootHash (standard personal_sign)
+   → provider.signMessage(rootHash)
+
+6. Broadcast via the Universal Account SDK
+   → universalAccount.sendTransaction(transaction, signature)
+```
+
+Steps 3 and 4 are provider-specific. Each demo below shows the exact implementation for its wallet.
+
+---
+
+## Demos
+
+<CardGroup cols={1}>
+  <Card title="Magic" icon="github" href="https://github.com/soos3d/ua-7702-magic-demo">
+    Next.js demo showing Magic email-OTP login, EIP-7702 delegation on Arbitrum, and a cross-chain ETH → USDC (Solana) conversion.
+
+    **Key packages:** `magic-sdk`, `@magic-ext/evm`
+  </Card>
+  <Card title="Dynamic (WaaS)" icon="github" href="https://github.com/soos3d/ua-dynamic-7702">
+    Next.js demo showing Dynamic WaaS login, EIP-7702 delegation on Arbitrum, and a cross-chain ETH → USDC (Solana) conversion.
+
+    **Key packages:** `@dynamic-labs/sdk-react-core`, `@dynamic-labs/ethereum-aa`
+  </Card>
+
+  <Card title="Privy" icon="github" href="https://github.com/Particle-Network/universal-accounts-7702">
+    Next.js demo showing Privy social login, EIP-7702 delegation, unified balance view, and cross-chain swaps.
+
+    **Key packages:** `@privy-io/react-auth`, `@privy-io/wagmi`
+  </Card>
+</CardGroup>
+
+---
+
+## Inline Delegation During Transactions
+
+For chains where delegation hasn't happened yet, the Universal Account SDK can request inline authorizations as part of a regular transaction. You don't need a separate delegation step—iterate over the `userOps` in the transaction and sign any pending `eip7702Auth` entries before calling `sendTransaction()`:
+
+```ts
+const transaction = await universalAccount.createConvertTransaction({ ... });
+
+const authorizations: EIP7702Authorization[] = [];
+const nonceMap = new Map<number, string>();
+
+for (const userOp of transaction.userOps) {
+  if (userOp.eip7702Auth && !userOp.eip7702Delegated) {
+    let signature = nonceMap.get(userOp.eip7702Auth.nonce);
+    if (!signature) {
+      // Use your provider's signAuthorization here
+      const rawAuth = await provider.signAuthorization(userOp.eip7702Auth);
+      signature = Signature.from(rawAuth).serialized;
+      nonceMap.set(userOp.eip7702Auth.nonce, signature);
+    }
+    authorizations.push({
+      userOpHash: userOp.userOpHash,
+      signature,
+    });
+  }
+}
+
+const rootHashSignature = await walletClient.signMessage({
+  account: userAddress,
+  message: { raw: transaction.rootHash },
+});
+
+const result = await universalAccount.sendTransaction(
+  transaction,
+  rootHashSignature,
+  authorizations,
+);
+```
+
+This pattern works with any of the providers above—swap in their respective `signAuthorization` call.
