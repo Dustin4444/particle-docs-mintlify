@@ -143,6 +143,7 @@
             "group": "SDK Reference",
             "pages": [
               "universal-accounts/ua-reference/desktop/web",
+              "universal-accounts/ua-reference/desktop/eip7702-wallets",
               {
                 "group": "Universal Deposit SDK",
                 "pages": [
