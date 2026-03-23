@@ -64,7 +64,27 @@ yarn add @particle-network/universal-deposit
 
 ## Quick Start
 
-### 1. Setup — Wrap your app with `DepositProvider`
+### 1. Import styles
+
+The React components (`DepositWidget`, `DepositModal`, `RecoveryWidget`, `RecoveryModal`) use Tailwind utility classes. The SDK ships a pre-built CSS file that you must import in your app:
+
+```css
+/* In your global CSS file */
+@import "@particle-network/universal-deposit/styles.css";
+```
+
+Or in a JS/TS entry point:
+
+```ts
+import '@particle-network/universal-deposit/styles.css';
+```
+
+> **Tailwind v4 users:** If you prefer to avoid duplicate utility CSS, you can skip the import above and add an `@source` directive in your CSS instead:
+> ```css
+> @source "../node_modules/@particle-network/universal-deposit/dist/**/*.mjs";
+> ```
+
+### 2. Setup — Wrap your app with `DepositProvider`
 
 ```tsx
 import { DepositProvider, CHAIN } from '@particle-network/universal-deposit/react';
@@ -84,7 +104,7 @@ function App() {
 }
 ```
 
-### 2. Modal — Open a deposit dialog
+### 3. Modal — Open a deposit dialog
 
 ```tsx
 import { useDeposit, DepositModal } from '@particle-network/universal-deposit/react';
@@ -109,7 +129,7 @@ function Page() {
   The user address above is only used as reference for the deposit account generation, the SDK is fully wallet-agnostic.
 </Note>
 
-### 3. Inline Widget — Embed the deposit UI
+### 4. Inline Widget — Embed the deposit UI
 
 ```tsx
 import { useDeposit, DepositWidget } from '@particle-network/universal-deposit/react';
@@ -123,7 +143,7 @@ function Page() {
 }
 ```
 
-### 4. Headless — Build your own UI
+### 5. Headless — Build your own UI
 
 ```tsx
 import { useDeposit, getChainName } from '@particle-network/universal-deposit/react';
