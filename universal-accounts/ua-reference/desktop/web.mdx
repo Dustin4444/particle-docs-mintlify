@@ -601,6 +601,46 @@ console.log("Explorer URL:", `https://universalx.app/activity/details?id=${resul
 
 The `sendTransaction(`) method returns a `TransactionResult` object with the transaction ID and other metadata.
 
+### Specifying the Output Token Type
+
+By default, `createSellTransaction()` accepts an optional second argument, `tradeConfig`, which lets you control what token you receive as proceeds from the sell.
+
+The `preferTokenType` field inside `tradeConfig` accepts either a numeric literal or the named `PREFER_TOKEN_TYPE` enum member — both are equivalent since `PREFER_TOKEN_TYPE` is a numeric TypeScript enum.
+
+| Value | Enum                        | Meaning                                              |
+| ----- | --------------------------- | ---------------------------------------------------- |
+| `0`   | `PREFER_TOKEN_TYPE.USD`     | Receive a USD-pegged stablecoin (USDC)               |
+| `1`   | `PREFER_TOKEN_TYPE.NATIVE`  | Receive the chain's native token (e.g. ETH, BNB)    |
+
+<Note>
+  If `tradeConfig` is omitted entirely, the SDK uses its own default output token.
+</Note>
+
+```ts
+import { CHAIN_ID, PREFER_TOKEN_TYPE, UniversalAccount } from "@particle-network/universal-account-sdk";
+import { useEthereum } from "@particle-network/authkit";
+
+const { provider } = useEthereum();
+
+const transaction = await universalAccount.createSellTransaction(
+  {
+    token: {
+      chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+      address: "0x912CE59144191C1204E64559FE8253a0e49E6548", // ARB on Arbitrum
+    },
+    amount: "1",
+  },
+  {
+    preferTokenType: PREFER_TOKEN_TYPE.USD, // 0 = USDC, 1 = native token
+  },
+);
+
+const signature = await provider.signMessage(transaction.rootHash);
+const result = await universalAccount.sendTransaction(transaction, signature);
+
+console.log("Explorer URL:", `https://universalx.app/activity/details?id=${result.transactionId}`);
+```
+
 ## Sending a Conversion Transaction
 
 You can convert [Primary Assets](/universal-accounts/cha/chains#primary-assets) with the `createConvertTransaction` method.

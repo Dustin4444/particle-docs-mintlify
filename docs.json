@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "willow",
+  "theme": "luma",
   "name": "Particle Network docs",
   "integrations": {
     "ga4": {
