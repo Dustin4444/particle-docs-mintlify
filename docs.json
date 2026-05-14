@@ -65,9 +65,8 @@
             "group": "OVERVIEW",
             "pages": [
               "intro/introduction",
-              "intro/what-is-particle-network",
-              "intro/what-is-cha",
-              "intro/what-is-ul"
+              "intro/which-product",
+              "intro/what-is-cha"
             ]
           },
           {
@@ -417,6 +416,14 @@
   },
 
   "redirects": [
+    {
+      "source": "/intro/what-is-particle-network",
+      "destination": "/intro/introduction"
+    },
+    {
+      "source": "/intro/what-is-ul",
+      "destination": "/intro/what-is-cha"
+    },
     {
       "source": "/docs/what-is-particle-network",
       "destination": "/intro/what-is-particle-network"

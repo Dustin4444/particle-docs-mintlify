@@ -1,0 +1,68 @@
+---
+title: "Which product do I need?"
+description: "Match your use case to the right Particle Network product with this decision guide."
+icon: "map-signs"
+---
+
+Particle Network has five developer-facing products. Most teams start with **Universal Accounts** — but each product can be used independently. Use the guides below to find your fit in under a minute.
+
+---
+
+## Start with your goal
+
+<CardGroup cols="2">
+  <Card title="Universal Accounts" icon="globe" href="/universal-accounts/cha/overview">
+    _My dApp should work on any chain — users never bridge._
+
+    One account and one unified balance across all supported chains. Your dApp deploys on one chain; Universal Accounts handles the rest.
+  </Card>
+  <Card title="Particle Auth" icon="address-card" href="/social-logins/auth/introduction">
+    _Users sign up with Google, email, or social — and get a wallet automatically._
+
+    MPC-secured embedded wallet creation behind familiar Web2 login flows. No seed phrases, no browser extension required.
+  </Card>
+  <Card title="Particle Connect" icon="wallet" href="/social-logins/connect/introduction">
+    _I need one modal for social logins and external wallets. I can also use AA features._
+
+    A wallet aggregator (similar to RainbowKit) that unifies external wallets and Particle Auth under one UI component.
+  </Card>
+  <Card title="AA SDK" icon="bolt" href="/aa/introduction">
+    _I need to add AA features to my dApp._
+
+    Sponsor transactions or let users pay gas in ERC-20 tokens.
+  </Card>
+  <Card title="Universal Deposit SDK" icon="arrow-down-to-bracket" href="/universal-accounts/ua-reference/universal-deposit/overview">
+    _I need my app to accept deposits from any chain without asking users to bridge._
+
+    Generates per-user deposit addresses on every supported chain. Funds are automatically detected and bridged to your destination chain in USDC — wallet-agnostic, no Connectkit or Authkit required.
+  </Card>
+</CardGroup>
+
+---
+
+## Decision table
+
+| | Universal Accounts | Particle Auth | Particle Connect | AA SDK | Universal Deposit |
+|---|---|---|---|---|---|
+| **What users get** | One account + unified balance across chains | Social-login wallet, no seed phrase | One modal for any wallet | Smart account with gas sponsorship + batching | Deposit from any chain, lands as USDC on your chain |
+| **What you integrate** | Universal Accounts SDK | Particle Auth SDK | Particle Connect SDK | AA SDK + bundler/paymaster config | Universal Deposit SDK |
+| **Best combined with** | Particle Auth or Connect as the signer | Universal Accounts or AA SDK | Universal Accounts or AA SDK | Any signer (Auth, Connect, or external EOA) | Any wallet or auth provider |
+
+<Tip>
+  **Can I use Universal Accounts without Particle Auth?**
+
+  Yes. The Universal Accounts SDK is provider-agnostic. You can use Particle Connect, Web3Modal, RainbowKit, or any signer that provides an EOA. Particle Auth is optional.
+</Tip>
+
+---
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Universal Accounts Quickstart" icon="star-shooting" href="/universal-accounts/cha/web-quickstart">
+    Integrate cross-chain accounts in minutes.
+  </Card>
+  <Card title="What is Chain Abstraction?" icon="arrows-up-down-left-right" href="/intro/what-is-cha">
+    Understand the concepts behind Universal Accounts.
+  </Card>
+</CardGroup>
