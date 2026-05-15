@@ -1,662 +1,168 @@
 ---
-title: "Quickstart: Integrating Universal Accounts into a Web App"
-sidebarTitle: "Web Quickstart"
-description: "Explore how Universal Accounts are integrated into a working dApp and see the SDK in action."
+title: "Quickstart"
+sidebarTitle: "Quickstart"
+description: "Run a Universal Account end-to-end from a single Node script in ~5 minutes."
 ---
 
-This guide walks you through the process of integrating Universal Account features into a working demo app built with Particle Auth and the Universal Accounts SDK.
+This quickstart runs a Universal Account end-to-end from one Node script — no frontend, no login UI. Install the SDK, initialize a UA from a dev wallet, fetch its unified balance, and send a cross-chain transfer.
 
-We’ll explain how user logins, account initialization, and balance display are handled in the code. You’ll also learn how to:
-
-- Initialize a Universal Account after a user logs in.
-- Fetch and display the user's Universal Account addresses.
-- Fetch and display the user's unified balance across chains.
-
-You can use this as a reference or base for your own app.
-
-<Note>
-  This example showcases a Next.js app using [Particle Auth](/social-logins/auth/introduction) as its login method.
-
-  However, the same logic can be applied to any other EOA-based provider or signer.
-</Note>
-
----
+For dApp flows with social login or a connected browser wallet, jump to the [Reference implementation](/universal-accounts/reference-implementation), [Integrate with Browser Wallets](/universal-accounts/how-to/provider), or [Using Magic's API Wallet](/universal-accounts/how-to/ua-magic).
 
 <Warning>
 Notice: Universal Accounts are upgrading to V2. This will require a change in account system for your app.
 
-We've begun the migration and need your users to withdraw all funds from the old account. The next version will be deployed shortly after and you can resume operations. 
+We've begun the migration and need your users to withdraw all funds from the old account. The next version will be deployed shortly after and you can resume operations.
 
 Withdrawals will be available past this date, but you will need to migrate your users to the new account system.
 
 Assets can be withdrawn to any account the user controls, but only via the `createTransferTransaction` method.
 </Warning>
 
-## Getting Started
+## Prerequisites
 
-To start integrating Universal Accounts:
+- **Node 18+** and an empty directory to run `npm install` in.
+- A **Particle Dashboard project** — copy `projectId`, `clientKey`, and `appId` from [dashboard.particle.network](https://dashboard.particle.network/).
+- A **dev/test wallet private key** — used to sign transactions in this script.
 
-<Steps>
-  <Step title="Clone the Quickstart Repository">
-    This repository includes the full working demo app.
+<Warning>
+  **Dev / test only.** The script below loads a private key from an environment variable. That's fine for a local smoke test, but **this pattern is not production-safe**:
 
-    ```bash Terminal
-    git clone https://github.com/particle-network/universal-accounts-quickstart.git
-    ```
-  </Step>
-  <Step title="Set Environment Variables">
-    First, create a project in the [Particle Dashboard](https://dashboard.particle.network/) to get the required credentials.
-
-    <Note> The same project keys are used for both Particle Auth and Universal Accounts.</Note>
-
-    In this example, we use **Particle Auth** for user authentication. However, you can use any EOA-compatible provider or signer. 
-    
-    Regardless of your choice, you’ll still need to create a project in the **Particle Dashboard** and initialize **Universal Accounts** using the project credentials.
-
-    Create a `.env` file in the root of the `ua-quickstart` directory with the following variables:
-
-    ```env .env
-    NEXT_PUBLIC_PROJECT_ID=""
-    NEXT_PUBLIC_CLIENT_KEY=""
-    NEXT_PUBLIC_APP_ID=""
-    ```
-
-  </Step>
-  <Step title="Install Dependencies">
-    Install the project dependencies using your preferred package manager:
-
-    <CodeGroup>
-
-    ```bash yarn
-    yarn install
-    ```
-
-    
-    ```bash npm
-    npm install
-    ```
-
-    </CodeGroup>
-  </Step>
-  <Step title="Run the App">
-    Start the development server:
-
-    <CodeGroup>
-
-    ```bash yarn
-    yarn dev
-    ```
-
-    
-    ```bash npm
-    npm run dev
-    ```
-
-    </CodeGroup>
-
-    Once the app is running, log in with any supported method via Particle Auth. After logging in, the app will display your Universal Account addresses and unified balance.
-  </Step>
-</Steps>
-
-<Note>
-  Universal Accounts are standalone smart accounts. As such, to fund yours, you will need to transfer assets into it—unless you're logging into a pre-existing Universal Account, created through [UniversalX](https://universalx.app) or any other Universal Accounts-enabled app.
-</Note>
+  - Never commit `.env` files or hard-code keys to source control.
+  - Production keys belong in a KMS, HSM, or secret manager (AWS KMS, GCP KMS, HashiCorp Vault, etc.).
+  - For a user-facing app, the signer should be a real wallet flow — Particle Auth, a connected browser wallet, or an embedded wallet provider. See [From server to browser](#from-server-to-browser) below.
+</Warning>
 
 ---
 
-## Features Walkthrough
+## 1. Install
 
-### 1. Universal Account Initialization
+Install the SDK, ethers, and dotenv:
 
-After the user logs in, the app creates a new Universal Account instance inside a `useEffect`.
+<CodeGroup>
 
-The constructor requires:
+```bash npm
+npm install ethers @particle-network/universal-account-sdk dotenv
+```
 
-- The connected user’s address.
-- Your Particle project credentials.
-- Optional config settings.
+```bash yarn
+yarn add ethers @particle-network/universal-account-sdk dotenv
+```
 
-Within the demo app, this looks as follows:
+</CodeGroup>
 
-```tsx page.tsx
-import { useEthereum } from "@particle-network/authkit";
-import { UniversalAccount } from "@particle-network/universal-account-sdk";
+Create a `.env` file with your Particle credentials and a test wallet key:
 
-// In the app
-const { address } = useEthereum();
+```env .env
+PROJECT_ID="YOUR_PROJECT_ID"
+CLIENT_KEY="YOUR_CLIENT_KEY"
+APP_ID="YOUR_APP_ID"
+PRIVATE_KEY="0x..." # test wallet only — never a production key
+```
+
+---
+
+## 2. Create the signer and Universal Account
+
+Create `script.ts`. Initialize an `ethers.Wallet` from your test key, then pass its address to the Universal Account constructor:
+
+```ts script.ts
+import "dotenv/config";
+import { Wallet, getBytes } from "ethers";
+import { CHAIN_ID, UniversalAccount } from "@particle-network/universal-account-sdk";
+
+// Dev/test wallet — do NOT use a production key here
+const wallet = new Wallet(process.env.PRIVATE_KEY!);
 
 const ua = new UniversalAccount({
-  projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
-  projectClientKey: process.env.NEXT_PUBLIC_CLIENT_KEY!,
-  projectAppUuid: process.env.NEXT_PUBLIC_APP_ID!,
-  ownerAddress: address,
-  // If not set it will use auto-slippage
+  projectId: process.env.PROJECT_ID!,
+  projectClientKey: process.env.CLIENT_KEY!,
+  projectAppUuid: process.env.APP_ID!,
+  ownerAddress: wallet.address,
   tradeConfig: {
     slippageBps: 100, // 1% slippage tolerance
-    universalGas: true, // Prioritize PARTI token to pay for gas
-    //usePrimaryTokens: [SUPPORTED_TOKEN_TYPE.SOL], // Specify token to use as source (only for swaps)
   },
 });
 ```
 
-<Note>
-  In this case, the user's address is retrieved directly from Particle Auth after they log in.
-</Note>
-
-<Card title="Universal Account Initialization in the Repository" icon="code" href="https://github.com/soos3d/universal-accounts-quickstart/blob/02ef3a98489248696b28ff3e922b9cc649a2da91/ua-quickstart/app/page.tsx#L47">
-  **Code location:** `page.tsx` → `useEffect` watching `connected && address`
-</Card>
+<Info>
+  Only the EOA address is needed at construction. The wallet comes back in for signing in step 4.
+</Info>
 
 ---
 
-### 2. Fetching a Universal Account's Addresses
+## 3. Fetch the unified balance
 
-The app fetches a Universal Account's EVM and Solana Universal Account addresses using `getSmartAccountOptions()`.
+`getPrimaryAssets()` returns the [Primary Assets](/universal-accounts/chains#primary-assets) the UA holds across every supported chain, plus an aggregated USD total. A non-zero `totalAmountInUSD` confirms the UA is wired end-to-end:
 
-This returns a UA's:
+```ts script.ts
+const primaryAssets = await ua.getPrimaryAssets();
 
-- EOA/Owner Account (from Particle Auth).
-- EVM Universal Account address.
-- Solana Universal Account address.
-
-```tsx page.tsx
-const smartAccountOptions = await universalAccount.getSmartAccountOptions();
+console.log("Unified balance (USD):", primaryAssets.totalAmountInUSD);
 ```
-
-The addresses are stored in state and rendered in the UI.
-
-<Card title="Fetching Smart Account Addresses in the Repository" icon="code" href="https://github.com/soos3d/universal-accounts-quickstart/blob/8fbb7c3dc6cbd9d681ac7f5ebba1ffc5da56c12f/ua-quickstart/app/page.tsx#L70">
-  **Code location:** `page.tsx` → `useEffect` watching `universalAccount && address`
-</Card>
 
 ---
 
-### 3. Fetching A Universal Account's Unified Balance
+## 4. Send a cross-chain transfer
 
-To show the user's total balance of [Primary Assets](/universal-accounts/chains#primary-assets) across chains, the app uses `getPrimaryAssets()` from the Universal Accounts SDK.
+Build the transfer with `createTransferTransaction()`, sign its `rootHash` bytes with the wallet, then broadcast:
 
-This returns:
+```ts script.ts
+const transaction = await ua.createTransferTransaction({
+  token: {
+    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+    address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", // USDT on Arbitrum
+  },
+  amount: "0.1", // human-readable string
+  receiver: "0xYOUR_RECEIVING_ADDRESS",
+});
 
-- `totalAmountInUSD`
-- Detailed breakdown per token \+ chain (if needed).
+const signature = await wallet.signMessage(getBytes(transaction.rootHash));
 
-<Card title="Full Primary Assets Breakdown" icon="coin" href="/universal-accounts/ua-reference/desktop/web#fetch-primary-assets">
-  Learn how to retrieve a full Primary Assets breakdown on our SDK reference.
-</Card>
+const result = await ua.sendTransaction(transaction, signature);
 
-The following code snippet shows how to retrieve the user's Primary Assets balance:
-
-```tsx page.tsx
-const primaryAssets = await universalAccount.getPrimaryAssets();
-```
-
-The UI then displays the account's Primary Assets balance in USD:
-
-```tsx page.tsx
-<p className="text-2xl font-bold text-green-400">
-  ${primaryAssets?.totalAmountInUSD || "0.00"}
-</p>
+console.log(
+  "View on Explorer:",
+  `https://universalx.app/activity/details?id=${result.transactionId}`,
+);
 ```
 
 <Info>
-  [Primary Assets](/universal-accounts/chains#primary-assets) are key tokens for which Universal Accounts have deep liquidity. As such, the SDK uses them as the base assets for any cross-chain operation—including gas, swaps, and liquidity routing.
+  The UA does **not** need USDT, gas, or any specific asset on Arbitrum. The SDK sources liquidity from the Primary Assets the UA holds across chains and routes them automatically.
 </Info>
 
-<Card title="Fetching Unified Balance in the Repository" icon="code" href="https://github.com/soos3d/universal-accounts-quickstart/blob/8fbb7c3dc6cbd9d681ac7f5ebba1ffc5da56c12f/ua-quickstart/app/page.tsx#L88">
-  **Code location:** `page.tsx` → `useEffect` watching `universalAccount && address`
-</Card>
+Run the script:
+
+```bash Terminal
+npx tsx script.ts
+```
+
+That's it — you've sent your first chain-abstracted transaction from a terminal.
 
 ---
 
-### 4. Sending Transactions
+## From server to browser
 
-Within the demo app, you can find examples for two types of transactions, both using a Universal Account:
+In a real app the signer is rarely a private key on your backend. The UA construction and transaction APIs stay identical — only the signer changes. Swap `ethers.Wallet` for one of:
 
-- A custom contract call with its destination on the **Base Mainnet.**
-- A USDT swap on **Arbitrum.**
-
-Both transactions use the user's Universal Account to handle asset conversion and automate liquidity routing.
-
-Let's take a closer look into both:
+- **Particle Auth** — social login, embedded wallet. See the [Reference implementation](/universal-accounts/reference-implementation).
+- **A connected browser wallet** (MetaMask, etc.) — see [Integrate with Browser Wallets](/universal-accounts/how-to/provider).
+- **Magic / Dynamic / Privy** — embedded wallets via JWT auth. See [Using Magic's API Wallet](/universal-accounts/how-to/ua-magic).
 
 ---
 
-#### Contract Call Example
-
-To interact with a smart contract—such as calling a function like `checkIn()`—you can use `createUniversalTransaction()` with the `transactions` and `expectTokens` fields.
-
-This method lets you define one or more contract calls while specifying which tokens the contract expects to receive or require:
-
-```tsx page.tsx
-import { useEthereum } from "@particle-network/authkit";
-const { provider } = useEthereum();
-import { CHAIN_ID, SUPPORTED_TOKEN_TYPE } from "@particle-network/universal-account-sdk";
-
-
-// In the app
-const transaction = await universalAccount.createUniversalTransaction({
-  chainId: CHAIN_ID.BASE_MAINNET,
-  // This example expects 0.0000001 ETH on base mainnet
-  // If your assets(USDC, USDT, SOL, etc.) are on other chains, the SDK will convert them to ETH on base mainnet
-  expectTokens: [
-    {
-      type: SUPPORTED_TOKEN_TYPE.ETH,
-      amount: "0.0000001",
-    },
-  ],
-  transactions: [
-    {
-      to: contractAddress,
-      data: encodedFunctionData,
-      value: toBeHex(parseEther("0.0000001")),
-    },
-  ],
-});
-
-const signature = await provider.signMessage(transaction.rootHash);
-await universalAccount.sendTransaction(transaction, signature);
-```
-
-In this case, the `provider` instance of Particle Auth is used to sign the transaction directly.
-
-<Note>
-  In this example, the transaction expects 0.0000001 ETH on Base Mainnet. Even if the user doesn't have ETH on Base, Universal Accounts will convert assets from other chains to meet this requirement.
-</Note>
-
-<Card title="Send Custom Transaction in the Repository" icon="code" href="https://github.com/soos3d/universal-accounts-quickstart/blob/8fbb7c3dc6cbd9d681ac7f5ebba1ffc5da56c12f/ua-quickstart/app/page.tsx#L102">
-  **Code location:** `page.tsx` → `handleTransaction()`
-</Card>
-
-#### Token Swap Example
-
-To swap tokens (e.g., 1 USDT on Arbitrum in this example), the demo app uses `createBuyTransaction()`.
-
-It does so in the following way:
-
-```tsx page.tsx
-  const transaction = await universalAccount.createBuyTransaction({
-    token: {
-      chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
-      address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", // USDT on Arbitrum
-    },
-    amountInUSD: "1",
-  });
-
-const signature = await provider.signMessage(transaction.rootHash);
-await universalAccount.sendTransaction(transaction, signature);
-```
-
-<Note>
-  The user can use any token on any supported chain to initiate the transfer—Universal Accounts handle conversion to the destination asset and routing automatically.
-</Note>
-
-<Card title="Send Swap Transaction in the Repository" icon="code" href="https://github.com/soos3d/universal-accounts-quickstart/blob/8fbb7c3dc6cbd9d681ac7f5ebba1ffc5da56c12f/ua-quickstart/app/page.tsx#L136">
-  **Code location:** `page.tsx` → `handleTransferTransaction()`
-</Card>
-
-## Full Code Reference
-
-Check out the complete `page.tsx` file below to see how everything fits together.
-
-You can also copy/paste the below file into your project or use it as a base for your own integration:
-
-```tsx page.tsx [expandable]
-"use client";
-
-import { useConnect, useEthereum } from "@particle-network/authkit";
-import {
-  CHAIN_ID,
-  SUPPORTED_TOKEN_TYPE,
-  type IAssetsResponse,
-  UniversalAccount,
-} from "@particle-network/universal-account-sdk";
-import { Interface, parseEther, toBeHex } from "ethers";
-import { useEffect, useState } from "react";
-
-export default function Home() {
-  // Particle Auth hooks
-  const { connect, disconnect, connected } = useConnect();
-  const { address, provider } = useEthereum();
-
-  // Transaction state - stores the URL of the latest transaction
-  const [transactionUrl, setTransactionUrl] = useState("");
-
-  // Universal Account instance states
-  const [universalAccount, setUniversalAccount] =
-    useState<UniversalAccount | null>(null);
-
-  // Smart account addresses for different chains
-  const [accountInfo, setAccountInfo] = useState({
-    ownerAddress: "",
-    evmSmartAccount: "", // EVM-based chains (Ethereum, Base, etc)
-    solanaSmartAccount: "", // Solana chain
-  });
-
-  // Aggregated balance across all chains
-  const [primaryAssets, setPrimaryAssets] = useState<IAssetsResponse | null>(
-    null
-  );
-
-  // === Authentication Handlers ===
-  const handleLogin = () => {
-    if (!connected) connect({});
-  };
-
-  const handleDisconnect = () => {
-    if (connected) disconnect();
-  };
-
-  // === Initialize UniversalAccount ===
-  useEffect(() => {
-    if (connected && address) {
-      // Create new UA instance when user connects
-      const ua = new UniversalAccount({
-        projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
-        projectClientKey: process.env.NEXT_PUBLIC_CLIENT_KEY!,
-        projectAppUuid: process.env.NEXT_PUBLIC_APP_ID!,
-        ownerAddress: address,
-        // If not set it will use auto-slippage
-        tradeConfig: {
-          slippageBps: 100, // 1% slippage tolerance
-          universalGas: true, // Enable gas abstraction
-          //usePrimaryTokens: [SUPPORTED_TOKEN_TYPE.SOL], // Specify token to use as source (only for swaps)
-        },
-      });
-      console.log("UniversalAccount initialized:", ua);
-      setUniversalAccount(ua);
-    } else {
-      // Reset UA when user disconnects
-      setUniversalAccount(null);
-    }
-  }, [connected, address]);
-
-  // === Fetch Smart Account Addresses ===
-  useEffect(() => {
-    if (!universalAccount || !address) return;
-    const fetchSmartAccountAddresses = async () => {
-      // Get smart account addresses for both EVM and Solana
-      const options = await universalAccount.getSmartAccountOptions();
-      setAccountInfo({
-        ownerAddress: address, // EOA address
-        evmSmartAccount: options.smartAccountAddress || "", // EVM smart account
-        solanaSmartAccount: options.solanaSmartAccountAddress || "", // Solana smart account
-      });
-      console.log("Smart Account Options:", options);
-    };
-    fetchSmartAccountAddresses();
-  }, [universalAccount, address]);
-
-  // === Fetch Primary Assets ===
-  useEffect(() => {
-    if (!universalAccount || !address) return;
-    const fetchPrimaryAssets = async () => {
-      // Get aggregated balance across all chains
-      // This includes ETH, USDC, USDT, etc. on various chains
-      const assets = await universalAccount.getPrimaryAssets();
-      setPrimaryAssets(assets);
-    };
-    fetchPrimaryAssets();
-  }, [universalAccount, address]);
-
-  // === Send Cross-chain Transaction ===
-  const handleTransaction = async () => {
-    // Safety check - all these are required for transactions
-    if (!universalAccount || !connected || !provider) {
-      console.error("Transaction prerequisites not met");
-      return;
-    }
-    const contractAddress = "0x14dcD77D7C9DA51b83c9F0383a995c40432a4578";
-    const interf = new Interface(["function checkIn() public payable"]);
-    const transaction = await universalAccount.createUniversalTransaction({
-      chainId: CHAIN_ID.BASE_MAINNET,
-      // expect you need 0.0000001 ETH on base mainnet
-      // if your money(USDC, USDT, SOL, etc.) is on other chain, will convert to ETH on base mainnet
-      expectTokens: [
-        {
-          type: SUPPORTED_TOKEN_TYPE.ETH,
-          amount: "0.0000001",
-        },
-      ],
-      transactions: [
-        {
-          to: contractAddress,
-          data: interf.encodeFunctionData("checkIn"),
-          value: toBeHex(parseEther("0.0000001")),
-        },
-      ],
-    });
-    const signature = await provider.signMessage(transaction.rootHash);
-    const sendResult = await universalAccount.sendTransaction(
-      transaction,
-      signature
-    );
-    setTransactionUrl(
-      `https://universalx.app/activity/details?id=${sendResult.transactionId}`
-    );
-  };
-
-  // === Send USDT Transfer Transaction ===
-  const handleTransferTransaction = async () => {
-    // Safety check - ensure wallet is connected and UA is initialized
-    if (!universalAccount || !connected || !provider) {
-      console.error("Transaction prerequisites not met");
-      return;
-    }
-    const transaction = await universalAccount.createBuyTransaction({
-      token: {
-        chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
-        address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
-      }, // USDT on Arbitrum
-      amountInUSD: "1",
-    });
-    const signature = await provider.signMessage(transaction.rootHash);
-    const sendResult = await universalAccount.sendTransaction(
-      transaction,
-      signature
-    );
-    console.log("Transaction sent:", sendResult);
-    setTransactionUrl(
-      `https://universalx.app/activity/details?id=${sendResult.transactionId}`
-    );
-  };
-
-  return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-200 text-gray-900 p-4">
-      <div className="w-full max-w-4xl space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-purple-700">
-            Universal Accounts Quickstart
-          </h1>
-          <p className="text-lg text-gray-600">
-            Particle Auth + Universal Accounts
-          </p>
-        </div>
-
-        {!connected ? (
-          <div className="w-full max-w-md mx-auto bg-gray-50 border border-gray-200 rounded-lg shadow-md p-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900">
-                Get Started
-              </h2>
-              <p className="text-gray-600 mt-2">
-                Login to get started with Universal Accounts
-              </p>
-            </div>
-            <div className="flex justify-center">
-              <button
-                onClick={handleLogin}
-                className="w-full max-w-xs bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
-              >
-                Login
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* Connection Status */}
-            <div className="w-full bg-gray-50 border border-gray-200 rounded-lg shadow-md p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h2 className="text-lg font-semibold text-gray-700">
-                  Owner Address (EOA)
-                </h2>
-                <p className="font-mono text-sm text-purple-700 break-all">
-                  {address}
-                </p>
-              </div>
-              <button
-                onClick={handleDisconnect}
-                className="shrink-0 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
-              >
-                Disconnect
-              </button>
-            </div>
-
-            {/* Account Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Smart Accounts */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg shadow-md p-6">
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold text-gray-700">
-                    Universal Account Addresses
-                  </h2>
-                </div>
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm text-gray-600">EVM</p>
-                    <p className="font-mono text-sm text-purple-700 break-all">
-                      {accountInfo.evmSmartAccount}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Solana</p>
-                    <p className="font-mono text-sm text-purple-700 break-all">
-                      {accountInfo.solanaSmartAccount}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Balance */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg shadow-md p-6 flex flex-col justify-between">
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold text-gray-700">
-                    Universal Balance
-                  </h2>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Aggregated{" "}
-                    <a
-                      className="text-purple-700 hover:underline"
-                      href="https://developers.particle.network/universal-accounts/chains#primary-assets"
-                    >
-                      primary assets
-                    </a>{" "}
-                    from every chain
-                  </p>
-                </div>
-                <div>
-                  <p className="text-4xl font-bold text-green-600">
-                    ${primaryAssets?.totalAmountInUSD.toFixed(4) || "0.00"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Transaction Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="bg-gray-50 border border-gray-200 rounded-lg shadow-md p-6">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-700">
-                    Custom Contract Call
-                  </h3>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Send a cross-chain contract call to Base.
-                  </p>
-                </div>
-                <div>
-                  <button
-                    onClick={handleTransaction}
-                    disabled={!universalAccount}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Send Custom Transaction
-                  </button>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 border border-gray-200 rounded-lg shadow-md p-6">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-700">
-                    Swap Transaction
-                  </h3>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Buy $1 USDT on Arbitrum using any token.
-                  </p>
-                </div>
-                <div>
-                  <button
-                    onClick={handleTransferTransaction}
-                    disabled={!universalAccount}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Buy USDT
-                  </button>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 border border-gray-200 rounded-lg shadow-md p-6">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-700">
-                    Demo Repo
-                  </h3>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Explore the code behind this demo on GitHub.
-                  </p>
-                </div>
-                <div>
-                  <a
-                    href="https://github.com/particle-network/universal-accounts-quickstart"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800"
-                  >
-                    View on GitHub
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Latest Transaction - Shown Only If Exists */}
-            {transactionUrl && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg shadow-md p-6">
-                <p className="text-sm text-gray-600 mb-2">Latest Transaction</p>
-                <a
-                  href={transactionUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-purple-700 hover:underline break-all"
-                >
-                  {transactionUrl}
-                </a>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </main>
-  );
-}
-```
-
----
-
-## Additional Resources
+## Next steps
 
 <CardGroup cols="2">
-  <Card title="SDK Reference" icon="code" href="/universal-accounts/ua-reference/desktop/web">
-    Learn more about the Universal Accounts SDK.
+  <Card title="Reference implementation" icon="code" href="/universal-accounts/reference-implementation">
+    A complete Next.js + Particle Auth example, walked through end-to-end.
   </Card>
-  <Card title="Supported Chains" icon="link" href="/universal-accounts/chains">
-    Learn more about the chains supported by Universal Accounts.
+  <Card title="How-to guides" icon="book" href="/universal-accounts/how-to/overview">
+    Browser wallets, balance widgets, deposit flows, and more.
+  </Card>
+  <Card title="SDK reference" icon="rectangle-terminal" href="/universal-accounts/ua-reference/desktop/web">
+    Full Universal Accounts SDK API surface.
+  </Card>
+  <Card title="Server-side examples" icon="server" href="https://github.com/Particle-Network/universal-account-example">
+    More Node.js patterns for running Universal Accounts on a backend.
   </Card>
 </CardGroup>

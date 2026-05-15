@@ -105,7 +105,10 @@
               "universal-accounts/chains",
               {
                 "group": "Quickstart",
-                "pages": ["universal-accounts/web-quickstart"]
+                "pages": [
+                  "universal-accounts/web-quickstart",
+                  "universal-accounts/reference-implementation"
+                ]
               },
               {
                 "group": "How-to",

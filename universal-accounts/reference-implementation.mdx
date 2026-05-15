@@ -1,0 +1,170 @@
+---
+title: "Reference Implementation: Next.js + Particle Auth"
+sidebarTitle: "Reference Implementation"
+description: "A complete Next.js demo wiring Universal Accounts to Particle Auth as the signer."
+---
+
+A full working example that combines **Particle Auth** (for social login) with the **Universal Accounts SDK**. Use it as a tour of the integration surface or fork it as a starting point for your own app.
+
+<Warning>
+Notice: Universal Accounts are upgrading to V2. This will require a change in account system for your app.
+
+We've begun the migration and need your users to withdraw all funds from the old account. The next version will be deployed shortly after and you can resume operations.
+
+Withdrawals will be available past this date, but you will need to migrate your users to the new account system.
+
+Assets can be withdrawn to any account the user controls, but only via the `createTransferTransaction` method.
+</Warning>
+
+<Card title="Demo repository" icon="github" href="https://github.com/particle-network/universal-accounts-quickstart">
+  Clone the complete Next.js demo from GitHub.
+</Card>
+
+<Note>
+  The [Quickstart](/universal-accounts/web-quickstart) is a short Node script that verifies the SDK end-to-end in a terminal. This page covers the full browser-side integration — Particle Auth login, React wiring, multiple transaction types.
+</Note>
+
+---
+
+## What the demo shows
+
+The demo is a Next.js app using [Particle Auth](/social-logins/auth/introduction) for login. After the user signs in, the page initializes a Universal Account from their EOA and renders:
+
+- The user's owner EOA, EVM Universal Account address, and Solana Universal Account address.
+- A live unified balance across all supported chains.
+- Two transaction examples — a payable contract call and a token swap.
+
+The signer is the `provider` returned by Particle Auth's `useEthereum()` hook. Any other EOA-based provider can be swapped in.
+
+<Note>
+  Universal Accounts are standalone smart accounts. To fund yours, transfer assets in — unless you're logging into a pre-existing UA created through [UniversalX](https://universalx.app) or another UA-enabled app.
+</Note>
+
+---
+
+## 1. Universal Account initialization
+
+After the user logs in, the app creates a Universal Account instance inside a `useEffect`. The constructor needs the user's EOA address and your Particle project credentials:
+
+```tsx page.tsx
+import { useEthereum } from "@particle-network/authkit";
+import { UniversalAccount } from "@particle-network/universal-account-sdk";
+
+const { address } = useEthereum();
+
+const ua = new UniversalAccount({
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
+  projectClientKey: process.env.NEXT_PUBLIC_CLIENT_KEY!,
+  projectAppUuid: process.env.NEXT_PUBLIC_APP_ID!,
+  ownerAddress: address,
+  tradeConfig: {
+    slippageBps: 100, // 1% slippage tolerance
+    universalGas: true, // Prioritize PARTI as the gas token
+  },
+});
+```
+
+<Card title="Initialization in the repo" icon="code" href="https://github.com/particle-network/universal-accounts-quickstart/blob/main/ua-quickstart/app/page.tsx">
+  `page.tsx` → `useEffect` watching `connected && address`
+</Card>
+
+---
+
+## 2. Addresses and unified balance
+
+The demo fetches the UA's EVM and Solana addresses with `getSmartAccountOptions()` and its unified balance with `getPrimaryAssets()`. Both are covered in more detail elsewhere:
+
+- [Quickstart §3](/universal-accounts/web-quickstart#3-fetch-the-unified-balance) — minimal balance fetch.
+- [Build a balance widget](/universal-accounts/how-to/balances) — full per-chain breakdown rendered as a React component.
+- [SDK reference: Addresses](/universal-accounts/ua-reference/desktop/web#fetching-a-universal-account-s-addresses) — full response shape.
+
+---
+
+## 3. Sending transactions
+
+The demo includes two transaction patterns. Both route through the Universal Account and use Particle Auth's `provider` as the signer.
+
+### Payable contract call (`createUniversalTransaction`)
+
+To call an arbitrary contract method — here, a `checkIn()` function on Base Mainnet that requires 0.0000001 ETH — the demo uses `createUniversalTransaction()` with `transactions` and `expectTokens`:
+
+```tsx page.tsx
+import { useEthereum } from "@particle-network/authkit";
+import {
+  CHAIN_ID,
+  SUPPORTED_TOKEN_TYPE,
+} from "@particle-network/universal-account-sdk";
+
+const { provider } = useEthereum();
+
+const transaction = await ua.createUniversalTransaction({
+  chainId: CHAIN_ID.BASE_MAINNET,
+  expectTokens: [
+    {
+      type: SUPPORTED_TOKEN_TYPE.ETH,
+      amount: "0.0000001",
+    },
+  ],
+  transactions: [
+    {
+      to: contractAddress,
+      data: encodedFunctionData,
+      value: toBeHex(parseEther("0.0000001")),
+    },
+  ],
+});
+
+const signature = await provider.signMessage(transaction.rootHash);
+await ua.sendTransaction(transaction, signature);
+```
+
+<Note>
+  Even if the user has no ETH on Base, the SDK sources assets from other chains and converts them to satisfy the `expectTokens` requirement.
+</Note>
+
+### Token swap (`createBuyTransaction`)
+
+To swap into a specific token by USD amount — here, 1 USDT on Arbitrum — the demo uses `createBuyTransaction()`:
+
+```tsx page.tsx
+const transaction = await ua.createBuyTransaction({
+  token: {
+    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+    address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", // USDT on Arbitrum
+  },
+  amountInUSD: "1",
+});
+
+const signature = await provider.signMessage(transaction.rootHash);
+await ua.sendTransaction(transaction, signature);
+```
+
+The user can hold the source liquidity in any supported token on any supported chain — Universal Accounts handles the routing.
+
+---
+
+## Running the demo
+
+1. Clone [`particle-network/universal-accounts-quickstart`](https://github.com/particle-network/universal-accounts-quickstart).
+2. Create `.env.local` with `NEXT_PUBLIC_PROJECT_ID`, `NEXT_PUBLIC_CLIENT_KEY`, and `NEXT_PUBLIC_APP_ID` from the [Particle Dashboard](https://dashboard.particle.network/).
+3. `npm install && npm run dev`.
+4. Log in via Particle Auth — your UA addresses and balance render automatically.
+
+---
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="How-to guides" icon="book" href="/universal-accounts/how-to/overview">
+    Task-oriented guides — browser wallets, balance widgets, deposit flows.
+  </Card>
+  <Card title="SDK reference" icon="rectangle-terminal" href="/universal-accounts/ua-reference/desktop/web">
+    Full Universal Accounts SDK API surface.
+  </Card>
+  <Card title="Supported chains" icon="link" href="/universal-accounts/chains">
+    EVM and non-EVM chains supported by Universal Accounts.
+  </Card>
+  <Card title="Demo repository" icon="github" href="https://github.com/particle-network/universal-accounts-quickstart">
+    Browse the complete code on GitHub.
+  </Card>
+</CardGroup>
