@@ -101,41 +101,28 @@
           {
             "group": "OVERVIEW",
             "pages": [
-              "universal-accounts/cha/overview",
-              "universal-accounts/cha/chains",
+              "universal-accounts/overview",
+              "universal-accounts/chains",
               {
                 "group": "Quickstart",
-                "pages": ["universal-accounts/cha/web-quickstart"]
+                "pages": ["universal-accounts/web-quickstart"]
               },
               {
                 "group": "How-to",
                 "pages": [
-                  "universal-accounts/cha/how-to/overview",
-                  "universal-accounts/cha/how-to/provider",
-                  "universal-accounts/cha/how-to/balances",
-                  "universal-accounts/cha/how-to/deposit-flow",
-                  "universal-accounts/cha/how-to/tx-preview",
-                  "universal-accounts/cha/how-to/conversions",
-                  "universal-accounts/cha/how-to/ua-magic"
+                  "universal-accounts/how-to/overview",
+                  "universal-accounts/how-to/provider",
+                  "universal-accounts/how-to/balances",
+                  "universal-accounts/how-to/deposit-flow",
+                  "universal-accounts/how-to/tx-preview",
+                  "universal-accounts/how-to/conversions",
+                  "universal-accounts/how-to/ua-magic"
                 ]
               },
               "universal-accounts/live-integrations"
             ]
           },
-          {
-            "group": "LEARN",
-            "pages": [
-              {
-                "group": "Chain Abstracted Apps Development Course",
-                "pages": [
-                  "universal-accounts/cha/ua-course/intro",
-                  "universal-accounts/cha/ua-course/lesson-1",
-                  "universal-accounts/cha/ua-course/lesson-2",
-                  "universal-accounts/cha/ua-course/lesson-3"
-                ]
-              }
-            ]
-          },
+
           {
             "group": "SDK Reference",
             "pages": [
@@ -416,6 +403,62 @@
   },
 
   "redirects": [
+    {
+      "source": "/universal-accounts/cha/overview",
+      "destination": "/universal-accounts/overview"
+    },
+    {
+      "source": "/universal-accounts/cha/chains",
+      "destination": "/universal-accounts/chains"
+    },
+    {
+      "source": "/universal-accounts/cha/web-quickstart",
+      "destination": "/universal-accounts/web-quickstart"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/overview",
+      "destination": "/universal-accounts/how-to/overview"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/provider",
+      "destination": "/universal-accounts/how-to/provider"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/balances",
+      "destination": "/universal-accounts/how-to/balances"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/deposit-flow",
+      "destination": "/universal-accounts/how-to/deposit-flow"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/tx-preview",
+      "destination": "/universal-accounts/how-to/tx-preview"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/conversions",
+      "destination": "/universal-accounts/how-to/conversions"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/ua-magic",
+      "destination": "/universal-accounts/how-to/ua-magic"
+    },
+    {
+      "source": "/universal-accounts/cha/ua-course/intro",
+      "destination": "/universal-accounts/ua-course/intro"
+    },
+    {
+      "source": "/universal-accounts/cha/ua-course/lesson-1",
+      "destination": "/universal-accounts/ua-course/lesson-1"
+    },
+    {
+      "source": "/universal-accounts/cha/ua-course/lesson-2",
+      "destination": "/universal-accounts/ua-course/lesson-2"
+    },
+    {
+      "source": "/universal-accounts/cha/ua-course/lesson-3",
+      "destination": "/universal-accounts/ua-course/lesson-3"
+    },
     {
       "source": "/intro/what-is-particle-network",
       "destination": "/intro/introduction"

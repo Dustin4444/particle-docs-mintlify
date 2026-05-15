@@ -23,7 +23,7 @@ To initiate a cross-chain transaction, use `createUniversalTransaction()` with t
 - `transactions` (optional): an array of follow-up actions to execute after the conversion (e.g., contract interactions). When empty, the converted tokens are sent back to the Universal Account.
 
 <Note>
-Check out the [Quickstart](/universal-accounts/cha/web-quickstart) to learn how to set up Universal Accounts in your app.
+Check out the [Quickstart](/universal-accounts/web-quickstart) to learn how to set up Universal Accounts in your app.
 </Note>
 
 
@@ -86,7 +86,7 @@ const result = await universalAccount.sendTransaction(
 Once signed and submitted, the transaction will execute on the destination chain, completing any asset conversions. The resulting tokens will be available in the user’s Universal Account balance.
 
 <Note>
-To learn how to display transaction previews before user confirmation, see the [Previewing Transaction Details](/universal-accounts/cha/how-to/tx-preview) guide.  
+To learn how to display transaction previews before user confirmation, see the [Previewing Transaction Details](/universal-accounts/how-to/tx-preview) guide.  
 <p></p>
 For handling the response after sending a transaction, refer to the [Send Transaction Response Structure](/universal-accounts/ua-reference/desktop/web#sendtransaction-response-structure) in the SDK reference.
 </Note>
@@ -295,7 +295,7 @@ export function SimpleConversionWidget({
   <Card title="SDK Reference" icon="code" href="/universal-accounts/ua-reference/desktop/web">
     See full API for `createUniversalTransaction`
   </Card>
-  <Card title="Supported Primary Assets" icon="coins" href="/universal-accounts/cha/chains#primary-assets">
+  <Card title="Supported Primary Assets" icon="coins" href="/universal-accounts/chains#primary-assets">
     View all Primary Assets and chains supported for conversion
   </Card>
 </CardGroup>

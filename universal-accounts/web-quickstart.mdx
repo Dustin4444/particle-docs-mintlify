@@ -173,7 +173,7 @@ The addresses are stored in state and rendered in the UI.
 
 ### 3. Fetching A Universal Account's Unified Balance
 
-To show the user's total balance of [Primary Assets](/universal-accounts/cha/chains#primary-assets) across chains, the app uses `getPrimaryAssets()` from the Universal Accounts SDK.
+To show the user's total balance of [Primary Assets](/universal-accounts/chains#primary-assets) across chains, the app uses `getPrimaryAssets()` from the Universal Accounts SDK.
 
 This returns:
 
@@ -199,7 +199,7 @@ The UI then displays the account's Primary Assets balance in USD:
 ```
 
 <Info>
-  [Primary Assets](/universal-accounts/cha/chains#primary-assets) are key tokens for which Universal Accounts have deep liquidity. As such, the SDK uses them as the base assets for any cross-chain operation—including gas, swaps, and liquidity routing.
+  [Primary Assets](/universal-accounts/chains#primary-assets) are key tokens for which Universal Accounts have deep liquidity. As such, the SDK uses them as the base assets for any cross-chain operation—including gas, swaps, and liquidity routing.
 </Info>
 
 <Card title="Fetching Unified Balance in the Repository" icon="code" href="https://github.com/soos3d/universal-accounts-quickstart/blob/8fbb7c3dc6cbd9d681ac7f5ebba1ffc5da56c12f/ua-quickstart/app/page.tsx#L88">
@@ -547,7 +547,7 @@ export default function Home() {
                     Aggregated{" "}
                     <a
                       className="text-purple-700 hover:underline"
-                      href="https://developers.particle.network/universal-accounts/cha/chains#primary-assets"
+                      href="https://developers.particle.network/universal-accounts/chains#primary-assets"
                     >
                       primary assets
                     </a>{" "}
@@ -656,7 +656,7 @@ export default function Home() {
   <Card title="SDK Reference" icon="code" href="/universal-accounts/ua-reference/desktop/web">
     Learn more about the Universal Accounts SDK.
   </Card>
-  <Card title="Supported Chains" icon="link" href="/universal-accounts/cha/chains">
+  <Card title="Supported Chains" icon="link" href="/universal-accounts/chains">
     Learn more about the chains supported by Universal Accounts.
   </Card>
 </CardGroup>
