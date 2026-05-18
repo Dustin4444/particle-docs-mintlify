@@ -129,8 +129,28 @@
           {
             "group": "SDK Reference",
             "pages": [
-              "universal-accounts/ua-reference/desktop/web",
-              "universal-accounts/ua-reference/desktop/eip7702-wallets",
+              "universal-accounts/ua-reference/web/overview",
+              "universal-accounts/ua-reference/web/initialization",
+              "universal-accounts/ua-reference/web/addresses",
+              "universal-accounts/ua-reference/web/balances",
+              {
+                "group": "Transactions",
+                "pages": [
+                  "universal-accounts/ua-reference/web/transactions/transfer",
+                  "universal-accounts/ua-reference/web/transactions/custom",
+                  "universal-accounts/ua-reference/web/transactions/buy",
+                  "universal-accounts/ua-reference/web/transactions/sell",
+                  "universal-accounts/ua-reference/web/transactions/conversion",
+                  "universal-accounts/ua-reference/web/transactions/solana",
+                  "universal-accounts/ua-reference/web/transactions/preview",
+                  "universal-accounts/ua-reference/web/transactions/send-response"
+                ]
+              },
+              "universal-accounts/ua-reference/web/history",
+              "universal-accounts/ua-reference/web/particle-connect",
+              "universal-accounts/ua-reference/web/backend",
+              "universal-accounts/ua-reference/web/universalx",
+              "universal-accounts/ua-reference/web/eip7702-wallets",
               "universal-accounts/ua-reference/faq"
             ]
           }
@@ -406,6 +426,14 @@
   },
 
   "redirects": [
+    {
+      "source": "/universal-accounts/ua-reference/desktop/web",
+      "destination": "/universal-accounts/ua-reference/web/overview"
+    },
+    {
+      "source": "/universal-accounts/ua-reference/desktop/eip7702-wallets",
+      "destination": "/universal-accounts/ua-reference/web/eip7702-wallets"
+    },
     {
       "source": "/universal-accounts/cha/overview",
       "destination": "/universal-accounts/overview"

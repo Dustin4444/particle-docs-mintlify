@@ -1,0 +1,88 @@
+---
+title: "createSellTransaction()"
+sidebarTitle: "Sell"
+description: "Sell a token from a Universal Account into a target Primary Asset (USDC or the chain's native token)."
+---
+
+The **Universal Accounts SDK** supports **sell/swap transactions** through the `createSellTransaction()` method. This allows you to programmatically sell a token (e.g., ARB on Arbitrum) into a target primary asset, with the transaction routed through Particle's Chain Abstraction layer.
+
+Once the transaction is created, it returns a `rootHash` payload that needs to be signed. You then use your signer (e.g., Particle Auth) to sign and pass it into `sendTransaction()` to broadcast.
+
+<Note>
+  The amount you specify is the raw token amount to be sold (no decimals adjustment needed). Ensure the **Universal Account** has a sufficient balance of the token before calling `createSellTransaction()`.
+</Note>
+
+```ts
+import { CHAIN_ID, UniversalAccount } from "@particle-network/universal-account-sdk";
+import { useEthereum } from "@particle-network/authkit";
+
+// extract the provider from Particle Auth
+const { provider } = useEthereum();
+
+// In your app
+const transaction = await ua.createSellTransaction({
+  token: {
+    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+    address: "0x912CE59144191C1204E64559FE8253a0e49E6548", // ARB on Arbitrum
+  },
+  amount: "0.1", // Amount of token to sell
+});
+
+const signature = await provider.signMessage(transaction.rootHash);
+const result = await ua.sendTransaction(transaction, signature);
+
+console.log("Explorer URL:", `https://universalx.app/activity/details?id=${result.transactionId}`);
+```
+
+The `sendTransaction(`) method returns a `TransactionResult` object with the transaction ID and other metadata.
+
+## Specifying the Output Token Type
+
+By default, `createSellTransaction()` accepts an optional second argument, `tradeConfig`, which lets you control what token you receive as proceeds from the sell.
+
+The `preferTokenType` field inside `tradeConfig` accepts either a numeric literal or the named `PREFER_TOKEN_TYPE` enum member — both are equivalent since `PREFER_TOKEN_TYPE` is a numeric TypeScript enum.
+
+| Value | Enum                        | Meaning                                              |
+| ----- | --------------------------- | ---------------------------------------------------- |
+| `0`   | `PREFER_TOKEN_TYPE.USD`     | Receive a USD-pegged stablecoin (USDC)               |
+| `1`   | `PREFER_TOKEN_TYPE.NATIVE`  | Receive the chain's native token (e.g. ETH, BNB)    |
+
+<Note>
+  If `tradeConfig` is omitted entirely, the SDK uses its own default output token.
+</Note>
+
+```ts
+import { CHAIN_ID, PREFER_TOKEN_TYPE, UniversalAccount } from "@particle-network/universal-account-sdk";
+import { useEthereum } from "@particle-network/authkit";
+
+const { provider } = useEthereum();
+
+const transaction = await universalAccount.createSellTransaction(
+  {
+    token: {
+      chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+      address: "0x912CE59144191C1204E64559FE8253a0e49E6548", // ARB on Arbitrum
+    },
+    amount: "1",
+  },
+  {
+    preferTokenType: PREFER_TOKEN_TYPE.USD, // 0 = USDC, 1 = native token
+  },
+);
+
+const signature = await provider.signMessage(transaction.rootHash);
+const result = await universalAccount.sendTransaction(transaction, signature);
+
+console.log("Explorer URL:", `https://universalx.app/activity/details?id=${result.transactionId}`);
+```
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Conversion Transaction" icon="right-left" href="/universal-accounts/ua-reference/web/transactions/conversion">
+    `createConvertTransaction()` — convert between primary assets.
+  </Card>
+  <Card title="sendTransaction() Response" icon="receipt" href="/universal-accounts/ua-reference/web/transactions/send-response">
+    Full breakdown of the `TransactionResult` object.
+  </Card>
+</CardGroup>

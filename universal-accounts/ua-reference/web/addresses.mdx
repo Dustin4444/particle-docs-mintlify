@@ -1,0 +1,46 @@
+---
+title: "Addresses"
+sidebarTitle: "Addresses"
+description: "Retrieve the owner EOA, EVM Universal Address, and Solana Universal Address from a Universal Account."
+---
+
+A **Universal Account** is composed of multiple addresses, each relevant to a specific interaction layer:
+
+1. **Owner Address**: The EOA that owns the Universal Account and signs transactions (e.g., from MetaMask or via a social login).
+2. **EVM Universal Address**: The **UA** address used on EVM-compatible chains.
+3. **Solana Universal Address**: The **UA** address used on Solana.
+
+<Note>
+  The EVM and Solana Universal Addresses are distinct due to the way deposits work on each network.
+
+  You can deposit any **EVM token** to the **EVM Universal Address**, and any **Solana token** to the **Solana Universal Address**. EVM and Solana assets will be accessible through the **same UA instance**, and balance lookups and transactions will remain unified at the SDK level.
+</Note>
+
+You can retrieve all relevant addresses from an initialized Universal Account instance as follows:
+
+```ts
+const smartAccountOptions = await ua.getSmartAccountOptions();
+
+const accountInfo = {
+  ownerAddress: smartAccountOptions.ownerAddress, // EOA that owns the Universal Account
+  evmUaAddress: smartAccountOptions.smartAccountAddress!, // EVM UA
+  solanaUaAddress: smartAccountOptions.solanaSmartAccountAddress!, // SOL UA
+};
+
+console.log("Smart Account info:", accountInfo);
+```
+
+<Card title="UA Info Management" icon="file-user" href="https://github.com/soos3d/auth-universal-accounts/blob/117dc53daea1b2bc9017e595bc5337e204171f69/auth-universal-demo/app/page.tsx#L70">
+  This repository includes a sample Next.js app with social logins via Particle Auth alongside Universal Accounts.
+</Card>
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Primary Assets & Unified Balance" icon="coins" href="/universal-accounts/ua-reference/web/balances">
+    Fetch unified balances and per-chain breakdowns.
+  </Card>
+  <Card title="Transfer Transaction" icon="arrow-right-arrow-left" href="/universal-accounts/ua-reference/web/transactions/transfer">
+    Send tokens cross-chain from a Universal Account.
+  </Card>
+</CardGroup>

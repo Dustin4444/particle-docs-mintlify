@@ -1,0 +1,80 @@
+---
+title: "sendTransaction() Response Structure"
+sidebarTitle: "sendTransaction() Response"
+description: "Full breakdown of the TransactionResult object returned by sendTransaction()."
+---
+
+After broadcasting a transaction with `sendTransaction()`, the SDK will return a detailed object containing its execution status, fee breakdowns, token flows, and analytics.
+
+Below is a breakdown of the key fields within this object:
+
+<Accordion title="Top-Level Fields">
+  | Field                       | Description                                                             |
+  | --------------------------- | ----------------------------------------------------------------------- |
+  | `transactionId`             | Unique ID of the transaction (used to query status or activity details) |
+  | `mode`                      | Network mode, typically `"mainnet"` or `"testnet"`                      |
+  | `sender` / `receiver`       | Address that initiated and received the transaction (usually same)      |
+  | `type`                      | Transaction type (e.g. `"universal"`)                                   |
+  | `status`                    | Execution status code (internal enum)                                   |
+  | `tag`                       | Transaction tag (e.g., `"buy"` or `"swap"`)                             |
+  | `created_at` / `updated_at` | ISO timestamps for lifecycle tracking                                   |
+</Accordion>
+
+<Accordion title="`fees` (Cost Breakdown)">
+  | Field                           | Description                                                  |
+  | ------------------------------- | ------------------------------------------------------------ |
+  | `totals.feeTokenAmountInUSD`    | Total fee in USD                                             |
+  | `feeTokens[]`                   | List of tokens used to pay fees, with symbols and USD values |
+  | `freeGasFee` / `freeServiceFee` | Whether any component was waived                             |
+</Accordion>
+
+<Accordion title="`depositTokens` / `lendingTokens`">
+  Tokens deducted from the user's account to fund the transaction. Each entry includes:
+
+  - `token.symbol`
+  - `token.chainId`
+  - `amount` and `amountInUSD`
+  - Full metadata (decimals, icon, etc.)
+</Accordion>
+
+<Accordion title="tokenChanges (Before/After Effects)">
+  Provides the most useful high-level insight into what changed:
+
+  | Field             | Description                                          |
+  | ----------------- | ---------------------------------------------------- |
+  | `decr[]`          | Tokens deducted from the user (chain, token, amount) |
+  | `incr[]`          | Tokens received by the user                          |
+  | `swaps[]`         | Swap routes (e.g. from USDC to USDT via 1inch)       |
+  | `tokenBalances[]` | Final post-transaction token balances                |
+</Accordion>
+
+<Accordion title="Analytics & Valuation">
+  | Field                   | Description                                                    |
+  | ----------------------- | -------------------------------------------------------------- |
+  | `slippage`              | Slippage used for the route (in basis points)                  |
+  | `totalFeeInUSD`         | Final USD fee value                                            |
+  | `totalDecrAmountInUSD`  | Total USD value deducted                                       |
+  | `totalIncrAmountInUSD`  | Total USD value received                                       |
+  | `priceImpact`           | Estimated price impact (0 if none)                             |
+  | `minReceiveAmountInUSD` | Minimum expected amount (to be received, post-slippage) in USD |
+  | `minReceiveToken`       | Token  targeted by the buy/swap action                         |
+</Accordion>
+
+<Accordion title="`Explorer / Activity Link`">
+  You can construct a link to see the activity on UniversalX:
+
+  ```ts
+  const url = `https://universalx.app/activity/details?id=${transactionId}`;
+  ```
+</Accordion>
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Transaction History" icon="clock-rotate-left" href="/universal-accounts/ua-reference/web/history">
+    Fetch past transactions and details for a Universal Account.
+  </Card>
+  <Card title="Transaction Preview" icon="eye" href="/universal-accounts/ua-reference/web/transactions/preview">
+    Inspect fees and token movements before signing.
+  </Card>
+</CardGroup>

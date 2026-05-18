@@ -1,0 +1,41 @@
+---
+title: "createConvertTransaction()"
+sidebarTitle: "Conversion"
+description: "Convert between Primary Assets on a Universal Account."
+---
+
+You can convert [Primary Assets](/universal-accounts/chains#primary-assets) with the `createConvertTransaction` method.
+
+The example below demonstrates how to convert any primary asset into another—USDC on Arbitrum, in this case:
+
+```ts
+import { CHAIN_ID, SUPPORTED_TOKEN_TYPE, UniversalAccount } from "@particle-network/universal-account-sdk";
+import { useEthereum } from "@particle-network/authkit";
+
+// extract the provider from Particle Auth
+const { provider } = useEthereum();
+
+// In your app
+const transaction = await ua.createConvertTransaction({
+    expectToken: { type: SUPPORTED_TOKEN_TYPE.USDC, amount: '1' },
+    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+});
+
+const signature = await provider.signMessage(transaction.rootHash);
+const result = await ua.sendTransaction(transaction, signature);
+
+console.log("Explorer URL:", `https://universalx.app/activity/details?id=${result.transactionId}`);
+```
+
+This method is useful to convert assets directly to your target chain (for example, upon deposit).
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Convert assets across chains" icon="right-left" href="/universal-accounts/how-to/conversions">
+    Step-by-step how-to guide for using conversions in your app.
+  </Card>
+  <Card title="EIP-7702 Compatible Wallets" icon="wallet" href="/universal-accounts/ua-reference/web/eip7702-wallets">
+    Embedded wallet integration for conversion + delegation flows.
+  </Card>
+</CardGroup>

@@ -1,0 +1,58 @@
+---
+title: "createBuyTransaction()"
+sidebarTitle: "Buy"
+description: "Buy a token with a specified USD amount sourced from Primary Assets across chains."
+---
+
+The Universal Accounts SDK supports **buy/swap transactions** directly through the `createBuyTransaction()` method. This allows you to programmatically route an amount in **USD** into a target token (e.g., USDT on Arbitrum), without requiring the user to hold funds on the destination chain.
+
+Once the transaction is created, it returns a `rootHash` value representing the payload to be signed. You then use your **signer** (in this case, Particle Auth) to sign the message, and pass the result into sendTransaction() to broadcast it:
+
+<Note>
+  You can specify the specific tokens you want to use as source for the swap by setting the `usePrimaryTokens` property in the `tradeConfig` object when initializing the Universal Account.
+
+  ```ts
+  tradeConfig: {
+      usePrimaryTokens: [SUPPORTED_TOKEN_TYPE.SOL],
+    },
+  ```
+</Note>
+
+```ts
+import { CHAIN_ID, UniversalAccount } from "@particle-network/universal-account-sdk";
+import { useEthereum } from "@particle-network/authkit";
+
+// extract the provider from Particle Auth
+const { provider } = useEthereum();
+
+// In your app
+const transaction = await ua.createBuyTransaction({
+  token: {
+    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+    address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", // USDT on Arbitrum
+  },
+  amountInUSD: "10", // Target amount in USD sourced from primary assets held
+});
+
+const signature = await provider.signMessage(transaction.rootHash);
+const result = await ua.sendTransaction(transaction, signature);
+
+console.log("Explorer URL:", `https://universalx.app/activity/details?id=${result.transactionId}`);
+```
+
+The `sendTransaction` method will then return a `TransactionResult` object, which includes the transaction ID and other metadata.
+
+<Card title="Sample Swap Transaction" icon="coin-front" href="https://github.com/soos3d/auth-universal-accounts/blob/main/auth-universal-demo/app/components/SendTransactionCard.tsx">
+  See how to initiate a swap transaction in a demo Next.js app using both Particle Auth and Universal Accounts.
+</Card>
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Sell Transaction" icon="money-bill-trend-up" href="/universal-accounts/ua-reference/web/transactions/sell">
+    `createSellTransaction()` — sell a token into a primary asset.
+  </Card>
+  <Card title="Conversion Transaction" icon="right-left" href="/universal-accounts/ua-reference/web/transactions/conversion">
+    `createConvertTransaction()` — convert between primary assets.
+  </Card>
+</CardGroup>

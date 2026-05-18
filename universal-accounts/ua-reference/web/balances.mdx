@@ -1,0 +1,97 @@
+---
+title: "Primary Assets & Unified Balance"
+sidebarTitle: "Balances"
+description: "Fetch a Universal Account's unified balance and per-chain Primary Assets breakdown."
+---
+
+Universal Accounts can hold all assets across supported chains.\
+Among these, **Primary Assets** are special: they have the deepest liquidity and can be used as the basis for **cross-chain swaps, liquidity routing, and gas payments**.
+
+> **Why this matters:** You can give users a _single, unified balance_ of these spendable assets—regardless of which chain they're actually on.
+
+<Note>
+  The full list of supported Primary Assets is available on the [Supported chains and Primary Assets](/universal-accounts/chains#primary-assets) page.
+</Note>
+
+## Fetch Unified Balance (quick way)
+
+The easiest way to display the maximum amount a user can spend in one go (the sum of their Primary Assets across chains) is by fetching their **Unified Balance**:
+
+```ts
+const primaryAssets = await ua.getPrimaryAssets();
+console.log("Unified Balance:", primaryAssets.totalAmountInUSD);
+```
+
+This gives you a single number (totalAmountInUSD) that represents the cross-chain total balance of Primary Assets in USD.
+
+## Inspect Primary Assets in Detail
+
+If you need more than just the total, `getPrimaryAssets()` also returns a detailed list of assets:
+
+```ts
+const primaryAssets = await ua.getPrimaryAssets();
+console.log("Primary Assets:", JSON.stringify(primaryAssets, null, 2));
+```
+
+The following is the structure of the response:
+
+```ts
+{
+  assets: AssetInfo[],       // assets breakdown (per-token and chain)
+  totalAmountInUSD: number   // unified total
+}
+```
+
+Each `AssetInfo` entry aggregates a token across chains, including per-chain breakdowns.
+
+<Accordion title="Expand to see the full structure">
+  | Field              | Description                                 |
+  | ------------------ | ------------------------------------------- |
+  | `tokenType`        | Token identifier (e.g., "eth", "usdt")      |
+  | `price`            | Current USD price                           |
+  | `amount`           | Total amount across chains (human-readable) |
+  | `amountInUSD`      | Total USD value                             |
+  | `chainAggregation` | Per-chain balance breakdowns                |
+</Accordion>
+
+### `chainAggregation` format
+
+Each `chainAggregation` entry details the balance and metadata of the token on a specific chain:
+
+<Accordion title="Expand to see the full structure">
+  | Field                       | Description                                      |
+  | --------------------------- | ------------------------------------------------ |
+  | `token.chainId`             | Chain ID                                         |
+  | `token.address`             | Token contract address                           |
+  | `amount`                    | Token amount (human-readable float)              |
+  | `amountInUSD`               | USD value                                        |
+  | `rawAmount`                 | Token amount in raw units (integer, stringified) |
+  | `token.decimals`            | ERC-20 decimals                                  |
+  | `token.realDecimals`        | Adjusted decimals for display                    |
+  | `token.isMultiChain`        | Part of multi-chain registry                     |
+  | `token.isMultiChainDefault` | Default canonical version across chains          |
+</Accordion>
+
+<Note>
+  For native assets like `ETH`, the `token.address` field will be `0x0000000000000000000000000000000000000000`.
+</Note>
+
+<CardGroup cols="2">
+  <Card title="Fetch Primary Assets in a Sample App" icon="binary" href="https://github.com/soos3d/auth-universal-accounts/blob/117dc53daea1b2bc9017e595bc5337e204171f69/auth-universal-demo/app/page.tsx#L99">
+    See how to call `getPrimaryAssets()` in a real Next.js app using Particle Auth and Universal Accounts.
+  </Card>
+  <Card title="Parse and Display Asset Balances" icon="brackets-curly" href="https://github.com/soos3d/auth-universal-accounts/blob/main/auth-universal-demo/app/components/BalanceCard.tsx">
+    Check out how Primary Asset data is parsed and rendered in this sample app.
+  </Card>
+</CardGroup>
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Build a balance widget" icon="wallet" href="/universal-accounts/how-to/balances">
+    Step-by-step guide to rendering a unified balance in your UI.
+  </Card>
+  <Card title="Transaction History" icon="clock-rotate-left" href="/universal-accounts/ua-reference/web/history">
+    Fetch a user's past transactions.
+  </Card>
+</CardGroup>

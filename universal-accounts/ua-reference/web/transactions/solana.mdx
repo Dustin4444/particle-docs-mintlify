@@ -1,0 +1,54 @@
+---
+title: "Solana Transactions"
+sidebarTitle: "Solana"
+description: "Send Solana transactions from a Universal Account using assets on any supported chain."
+---
+
+Universal Accounts support **Solana** as well.
+
+You can swap any token to and from SOL using the `createTransferTransaction()` method, even without assets on Solana.
+
+Here is an example:
+
+```ts
+import { CHAIN_ID } from "@particle-network/universal-account-sdk";
+import { useEthereum } from "@particle-network/authkit";
+
+// extract the provider from Particle Auth
+const { provider } = useEthereum();
+
+// In your app
+const transaction = await ua.createBuyTransaction({
+    // Buy sol
+    // token: { chainId: CHAIN_ID.SOLANA_MAINNET, address: "0x0000000000000000000000000000000000000000" },
+    
+    // Buy a token
+    token: { chainId: CHAIN_ID.SOLANA_MAINNET, address: "6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN" },
+    // buy $0.001 of trump
+    amountInUSD: "0.001",
+});
+
+const signature = await provider.signMessage(transaction.rootHash);
+const result = await universalAccount.sendTransaction(transaction, signature);
+
+console.log("Explorer URL:", `https://universalx.app/activity/details?id=${result.transactionId}`);
+```
+
+<Note>
+  Even if your Universal Account doesn't hold SOL for gas, you can still purchase SOL or any other Solana token. Universal Accounts will automatically handle routing and liquidity across chains to cover gas fees.
+</Note>
+
+Solana transactions can be signed with any provider compatible with the Universal Accounts SDK. In this case, Particle Auth is used to sign the `rootHash`.
+
+You can combine this swap transaction with a SOL transfer to automatically convert EVM-based assets to SOL and send them to another account in a single flow.
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Buy Transaction" icon="cart-shopping" href="/universal-accounts/ua-reference/web/transactions/buy">
+    `createBuyTransaction()` — buy a token with USD value.
+  </Card>
+  <Card title="Transfer Transaction" icon="arrow-right-arrow-left" href="/universal-accounts/ua-reference/web/transactions/transfer">
+    Send tokens cross-chain from a Universal Account.
+  </Card>
+</CardGroup>

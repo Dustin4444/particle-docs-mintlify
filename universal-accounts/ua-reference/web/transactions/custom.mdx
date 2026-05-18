@@ -1,0 +1,60 @@
+---
+title: "createUniversalTransaction()"
+sidebarTitle: "Custom Payable"
+description: "Send arbitrary contract interactions, including payable transactions, from a Universal Account."
+---
+
+The **Universal Accounts SDK** supports sending contract interactions, including payable transactions, through the `createUniversalTransaction()` method. In this example, we interact with a smart contract on the **Base Mainnet** that requires exactly 0.0000001 ETH to execute a `checkIn()` function.
+
+By specifying an `expectTokens` array, the SDK ensures the account has the necessary **ETH** on Base—even if the user's assets are on other chains or in different tokens (e.g., USDC, USDT). The SDK will handle all additional required cross-chain routing and token conversion under the hood.
+
+Once the transaction is created, it will return a `rootHash` value representing the payload to be signed. You can then use a signer (e.g., Particle Auth) to sign this hash and broadcast it using `sendTransaction()`.
+
+The following code snippet shows how to use the **Universal Accounts SDK** to send a payable transaction:
+
+```tsx
+import { CHAIN_ID, SUPPORTED_TOKEN_TYPE } from "@particle-network/universal-account-sdk";
+import { Interface, parseEther, toBeHex } from "ethers";
+import { useEthereum } from "@particle-network/authkit";
+
+// Extract the provider from Particle Auth
+const { provider } = useEthereum();
+
+const contractAddress = "0x14dcD77D7C9DA51b83c9F0383a995c40432a4578";
+const interf = new Interface(["function checkIn() public payable"]);
+
+const transaction = await ua.createUniversalTransaction({
+  chainId: CHAIN_ID.BASE_MAINNET,
+  expectTokens: [
+    {
+      type: SUPPORTED_TOKEN_TYPE.ETH,
+      amount: "0.0000001",
+    },
+  ],
+  transactions: [
+    {
+      to: contractAddress,
+      data: interf.encodeFunctionData("checkIn"),
+      value: toBeHex(parseEther("0.0000001")),
+    },
+  ],
+});
+
+const signature = await provider.signMessage(transaction.rootHash);
+const result = await ua.sendTransaction(transaction, signature);
+
+console.log("Explorer URL:", `https://universalx.app/activity/details?id=${result.transactionId}`);
+```
+
+The returned `TransactionResult` will include the transaction's ID and metadata like token movements and fee breakdowns.
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Transaction Preview" icon="eye" href="/universal-accounts/ua-reference/web/transactions/preview">
+    Inspect fees and token movements before signing.
+  </Card>
+  <Card title="sendTransaction() Response" icon="receipt" href="/universal-accounts/ua-reference/web/transactions/send-response">
+    Full breakdown of the `TransactionResult` object.
+  </Card>
+</CardGroup>

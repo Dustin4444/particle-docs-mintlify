@@ -1,0 +1,51 @@
+---
+title: "createTransferTransaction()"
+sidebarTitle: "Transfer"
+description: "Send tokens to any address across supported chains from a Universal Account."
+---
+
+The `Universal Accounts SDK` lets you send tokens to any address across supported chains using the `createTransferTransaction()` method. Like other transactions, transfers don't require the user to hold assets or gas tokens on the destination chain—**liquidity and gas are abstracted** behind the scenes.
+
+Once you construct the transfer, the SDK returns a `rootHash` to sign. You sign it with the connected EOA (e.g., from Particle Auth), then call `sendTransaction()` to broadcast:
+
+```ts
+import { CHAIN_ID, UniversalAccount } from "@particle-network/universal-account-sdk";
+import { useEthereum } from "@particle-network/authkit";
+
+const { provider } = useEthereum();
+
+const transaction = await ua.createTransferTransaction({
+  token: {
+    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+    address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", // USDT on Arbitrum
+  },
+  amount: "0.1", // Amount to send (human-readable string)
+  receiver: receiverAddress, // Target address
+});
+
+const signature = await provider.signMessage(transaction.rootHash);
+const result = await ua.sendTransaction(transaction, signature);
+
+console.log("Explorer URL:", `https://universalx.app/activity/details?id=${result.transactionId}`);
+```
+
+<Info>
+  For native assets like `ETH`, the token address will be `0x0000000000000000000000000000000000000000`.
+</Info>
+
+The returned `TransactionResult` will include the transaction ID, as well as metadata like token movements and fee breakdowns. You can find more details about this in the [`sendTransaction()` Response Structure](/universal-accounts/ua-reference/web/transactions/send-response) page.
+
+<Card title="View a Sample Transfer Transaction" icon="arrows-turn-right" href="https://github.com/soos3d/auth-universal-accounts/blob/f026f3e3af14ce0ca2c7904e916307b1277b8158/auth-universal-demo/app/components/SendTransactionCard.tsx#L90">
+  See how to send cross-chain transfers in a demo Next.js app leveraging Universal Accounts and Particle Auth.
+</Card>
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Custom Payable Transaction" icon="code" href="/universal-accounts/ua-reference/web/transactions/custom">
+    Call any contract — `createUniversalTransaction()`.
+  </Card>
+  <Card title="sendTransaction() Response" icon="receipt" href="/universal-accounts/ua-reference/web/transactions/send-response">
+    Full breakdown of the `TransactionResult` object.
+  </Card>
+</CardGroup>

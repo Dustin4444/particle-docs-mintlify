@@ -1,0 +1,237 @@
+---
+title: "Initialization & Configuration"
+sidebarTitle: "Initialization"
+description: "Configure project credentials, choose an account mode, and tune the trade config."
+---
+
+To configure Universal Accounts:
+
+1. Import the UniversalAccount class in your app:
+
+```ts
+import {
+  UniversalAccount,
+  UNIVERSAL_ACCOUNT_VERSION,
+} from "@particle-network/universal-account-sdk";
+```
+
+2. The Universal Accounts SDK requires Particle project credentials from the [Particle Dashboard](https://dashboard.particle.network/). To retrieve your project credentials:
+
+<AccordionGroup>
+  <Accordion title="Access the Particle Dashboard">
+    <div className="flex justify-center">
+    <img
+      className="block h-64 dark:hidden"
+      src="/social-logins/images/login.png"
+      alt="Login into Particle."
+    />
+
+    <img
+      className="hidden h-64 dark:block"
+      src="/social-logins/images/login.png"
+      alt="Login into Particle."
+    />
+
+    </div>
+  </Accordion>
+  <Accordion title="Create or open a project">
+    <div className="flex justify-center">
+    <img
+      className="block h-64 dark:hidden"
+      src="/social-logins/images/project.png"
+      alt="Create Particle project."
+    />
+
+    <img
+      className="hidden h-64 dark:block"
+      src="/social-logins/images/project.png"
+      alt="Create Particle project."
+    />
+
+    </div>
+  </Accordion>
+  <Accordion title="Create a web application (or skip if already created)">
+    <div className="flex justify-center">
+    <img
+      className="block h-64 dark:hidden"
+      src="/social-logins/images/web-app.png"
+      alt="Create web app."
+    />
+
+    <img
+      className="hidden h-64 dark:block"
+      src="/social-logins/images/web-app.png"
+      alt="Create web app."
+    />
+
+    </div>
+  </Accordion>
+  <Accordion title="Retrieve project credentials">
+    <div className="flex justify-center">
+    <img
+      className="block h-64 dark:hidden"
+      src="/social-logins/images/credentials.png"
+      alt="Find app credentials."
+    />
+
+    <img
+      className="hidden h-64 dark:block"
+      src="/social-logins/images/credentials.png"
+      alt="Find app credentials."
+    />
+
+    </div>
+  </Accordion>
+</AccordionGroup>
+
+3. Then, initialize Universal Accounts using your preferred mode:
+
+<Note>
+  **EIP-7702 is the default mode for Universal Accounts.**\
+  In this mode, the EOA used for authentication is upgraded to act directly as the Universal Account. However, if you wish to use Smart Account mode, simply set "useEIP7702" to "false".\
+  \
+  The section below dives deeper into the differences between both modes.
+</Note>
+
+```ts
+const ua = new UniversalAccount({
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
+  projectClientKey: process.env.NEXT_PUBLIC_CLIENT_KEY!,
+  projectAppUuid: process.env.NEXT_PUBLIC_APP_ID!,
+  smartAccountOptions: {
+    // 7702 mode: the EOA address itself becomes the Universal Account
+    useEIP7702: true,
+    name: "UNIVERSAL",
+    version: UNIVERSAL_ACCOUNT_VERSION,
+    ownerAddress: wallet.address,
+  },
+  // Optional: defaults to auto-slippage
+  tradeConfig: {
+    slippageBps: 100, // 1% slippage tolerance
+    // usePrimaryTokens: [SUPPORTED_TOKEN_TYPE.SOL], // Only for swaps
+  },
+});
+```
+
+4. You can now use the `ua` instance to fetch Universal Account data (addresses and unified balances) and to send transactions across supported chains.
+
+## About 7702 Mode (Default)
+
+In 7702 mode, the EOA address used for authentication is the Universal Account.
+
+All Universal Account features—such as chain abstraction, unified balances, and gas abstraction—are applied directly to the user's original EOA.
+
+<Warning>
+  **Current limitation:**
+
+  - 7702 mode is only available in server-side environments and embedded wallets that support the authorization methods.
+  - JSON-RPC wallets are not supported at the moment.
+</Warning>
+
+Using 7702 mode requires you to authorize the user's EOA to act as the Universal Account on the specified chain before transacting.
+
+Once this delegation is successful, all subsequent transactions will automatically execute on that chain.\
+\
+To authorize the 7702 mode automatically on new chains, run the below pattern when sending transactions:
+
+```ts
+const universalAccount = new UniversalAccount(universalAccountConfig);
+
+const transaction = await universalAccount.createConvertTransaction({
+    expectToken: { type: SUPPORTED_TOKEN_TYPE.USDT, amount: '0.0001' },
+    chainId: CHAIN_ID.BSC_MAINNET,
+});
+
+// Handle 7702 Authorization
+const authorizations: EIP7702Authorization[] = [];
+const nonceMap = new Map<number, string>();
+for (const userOp of transaction.userOps) {
+    if (!!userOp.eip7702Auth && !userOp.eip7702Delegated) {
+        let signature = nonceMap.get(userOp.eip7702Auth.nonce);
+        if (!signature) {
+            const authorization = wallet.authorizeSync(userOp.eip7702Auth);
+            signature = authorization.signature.serialized;
+            nonceMap.set(userOp.eip7702Auth.nonce, signature);
+        }
+        authorizations.push({
+            userOpHash: userOp.userOpHash,
+            signature: signature,
+        });
+    }
+}
+```
+
+<CardGroup cols="2">
+  <Card title="Serverside examples using EIP-7702" icon="binary" href="https://github.com/Particle-Network/universal-account-example/blob/main/examples/7702-convert-evm.ts">
+    Find serverside examples using Universal Accounts in EIP-7702 mode.
+  </Card>
+  <Card title="EIP-7702 compatible embedded wallets" icon="wallet" href="/universal-accounts/ua-reference/web/eip7702-wallets">
+    Demos and integration notes for Dynamic, Magic, and Privy embedded wallets with 7702 mode.
+  </Card>
+</CardGroup>
+
+### Verifying EIP-7702 delegation
+
+To check whether EIP-7702 delegation is active for a Universal Account, query the registered deployments:
+
+```ts
+const deployments = await universalAccount.getEIP7702Deployments();
+console.log(deployments);
+```
+
+This call returns an array of EIP-7702 deployment records, including the delegated contract addresses and their current status for each chain.
+
+## Smart Account Mode (JSON-RPC wallets)
+
+This mode exists for compatibility with JSON-RPC wallets, but does not provide the same zero-friction experience as 7702 mode.\
+\
+As mentioned above, if you need to support Smart Account mode, simply change the following variable upon initialization:
+
+```ts
+useEIP7702: false
+```
+
+In this mode:
+
+- A separate smart account is created and attached to the EOA.
+- The smart account has its own address.
+- Users must transfer assets to the smart account before use.
+
+## Trade Config
+
+### Control which tokens are used for swaps
+
+When initializing a **Universal Account**, you can control which tokens are eligible to be used as the source for swap operations.
+
+To do this, set the `usePrimaryTokens` field inside the `tradeConfig` object. This lets you restrict swap logic to specific tokens (e.g. only allow SOL to be spent, not USDT or ETH).
+
+Example:
+
+```ts
+tradeConfig: {
+  usePrimaryTokens: [SUPPORTED_TOKEN_TYPE.SOL],
+}
+```
+
+This is useful if you want to:
+
+- Ensure predictable token usage during swaps.
+- Prevent certain tokens from being auto-selected as swap input.
+- Customize the user experience around token prioritization.
+
+## Reference implementation
+
+<Card title="Check Out UA Initialization in This Sample Repository" icon="link" href="https://github.com/soos3d/auth-universal-accounts/blob/117dc53daea1b2bc9017e595bc5337e204171f69/auth-universal-demo/app/page.tsx#L43">
+  Sample Next.js app using Particle Auth with Universal Accounts.
+</Card>
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Addresses" icon="address-card" href="/universal-accounts/ua-reference/web/addresses">
+    Retrieve the owner EOA, EVM UA, and Solana UA addresses.
+  </Card>
+  <Card title="Primary Assets & Unified Balance" icon="coins" href="/universal-accounts/ua-reference/web/balances">
+    Fetch unified balances and per-chain breakdowns.
+  </Card>
+</CardGroup>

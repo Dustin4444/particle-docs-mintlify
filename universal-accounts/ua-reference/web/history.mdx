@@ -1,0 +1,85 @@
+---
+title: "Transaction History"
+sidebarTitle: "History"
+description: "Fetch a Universal Account's transaction history and individual transaction details."
+---
+
+The **Universal Accounts SDK** allows you to retrieve a user's transaction history directly from their **Universal Account**.\
+You can query both **general transactions** (all activity) and **token-specific transactions** (activity related to a specific token).
+
+This is useful for displaying activity feeds, wallet histories, or user analytics dashboards.
+
+## Fetch All Transactions
+
+To retrieve the complete transaction history of a Universal Account, use the `getTransactions(page, pageSize)` method:
+
+```ts
+const transactions = await universalAccount.getTransactions(1, 20);
+console.log("transactions", transactions);
+```
+
+This call will return a paginated list of transactions ordered by most recent. Each page includes up to the number of records you specify in the `pageSize` argument.
+
+## Fetch Token-Specific Transactions
+
+To filter the transaction history by a specific token and chain, use the `getTokenTransactions()` method:
+
+```tsx
+const tokenTransactions = await universalAccount.getTokenTransactions({
+  chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+  address: "0x912CE59144191C1204E64559FE8253a0e49E6548", // ARB token on Arbitrum
+});
+
+console.log("tokenTransactions", tokenTransactions);
+```
+
+This will return a list of transactions where the specified token was involved.
+
+Each response includes a `nextPageToken` you can use to fetch additional results.
+
+### Pagination Example
+
+To retrieve the next page of token-specific transactions, simply pass the returned `nextPageToken`:
+
+```tsx
+const tokenTransactions2 = await universalAccount.getTokenTransactions(
+  {
+    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+    address: "0x912CE59144191C1204E64559FE8253a0e49E6548",
+  },
+  tokenTransactions.nextPageToken
+);
+
+console.log("tokenTransactions2", tokenTransactions2);
+```
+
+<Note>
+  Both `getTransactions()` and `getTokenTransactions()` support pagination.\
+  Always check for the `nextPageToken` field in the response to determine if more results are available.
+</Note>
+
+## Fetching Transaction Details
+
+To retrieve the details of a specific transaction, use the `getTransaction(transactionId)` method:
+
+<Note>
+  The `transactionId` is the transaction's unique identifier; you can retrieve it from the transaction history.
+</Note>
+
+```ts
+const txDetails = await universalAccountInstance.getTransaction(transactionId);
+console.log("txDetails", txDetails);
+```
+
+This will return a `TransactionDetails` object containing detailed information about the transaction. You can then use this object to display transaction details in your application.
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="sendTransaction() Response" icon="receipt" href="/universal-accounts/ua-reference/web/transactions/send-response">
+    Full breakdown of the `TransactionResult` object.
+  </Card>
+  <Card title="Balances" icon="coins" href="/universal-accounts/ua-reference/web/balances">
+    Fetch the unified balance and per-chain breakdowns.
+  </Card>
+</CardGroup>
