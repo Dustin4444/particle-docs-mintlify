@@ -66,17 +66,11 @@
             "pages": [
               "intro/introduction",
               "intro/which-product",
-              "intro/universal-accounts"
-            ]
-          },
-          {
-            "group": "PARTICLE PRODUCTS",
-            "pages": [
+              "intro/what-is-cha"
 
-              "intro/social-logins",
-              "intro/account-abstraction"
             ]
           },
+
           {
             "group": "MORE RESOURCES",
             "pages": [
