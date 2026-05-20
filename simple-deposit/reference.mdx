@@ -1,7 +1,7 @@
 ---
-title: "Universal Deposit SDK — Reference"
+title: "Simple Deposit — Reference"
 sidebarTitle: "Types, Constants & Advanced"
-description: "Type definitions, constants, chain utilities, and advanced configuration for the Universal Deposit SDK."
+description: "Type definitions, constants, chain utilities, and advanced configuration for the Simple Deposit."
 ---
 
 ## Types
@@ -170,7 +170,7 @@ interface DepositAddresses {
 ### CHAIN
 
 ```typescript
-import { CHAIN } from '@particle-network/universal-deposit';
+import { CHAIN } from '@particle-network/simple-deposit';
 
 CHAIN.ETHEREUM    // 1
 CHAIN.OPTIMISM    // 10
@@ -198,7 +198,7 @@ import {
   DEFAULT_SUPPORTED_TOKENS,      // ['ETH', 'USDC', 'USDT', 'BTC', 'SOL', 'BNB']
   DEFAULT_MIN_VALUE_USD,          // 0.50
   DEFAULT_POLLING_INTERVAL_MS,    // 3000
-} from '@particle-network/universal-deposit';
+} from '@particle-network/simple-deposit';
 ```
 
 ### Chain Utilities
@@ -211,7 +211,7 @@ import {
   isValidEvmAddress,         // Validates 0x + 40 hex chars
   isValidSolanaAddress,      // Validates base58 format
   validateAddressForChain,   // Validates address format for chain type
-} from '@particle-network/universal-deposit';
+} from '@particle-network/simple-deposit';
 ```
 
 ---
@@ -345,7 +345,7 @@ import {
   SweepError,            // Sweep failed
   RefundError,           // Refund failed
   NetworkError,          // Network issues
-} from '@particle-network/universal-deposit';
+} from '@particle-network/simple-deposit';
 ```
 
 ```typescript
@@ -367,7 +367,7 @@ try {
 ---
 
 <CardGroup cols={1}>
-  <Card title="Back to Overview" icon="arrow-left" href="/universal-accounts/ua-reference/universal-deposit/overview">
+  <Card title="Back to Quickstart" icon="arrow-left" href="/simple-deposit/quickstart">
     Installation, quickstart, and usage patterns.
   </Card>
 </CardGroup>

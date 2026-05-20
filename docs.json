@@ -151,6 +151,26 @@
         ]
       },
       {
+        "tab": "Simple Deposit",
+        "groups": [
+          {
+            "group": "OVERVIEW",
+            "pages": [
+              "simple-deposit/overview",
+              "simple-deposit/quickstart"
+            ]
+          },
+          {
+            "group": "SDK Reference",
+            "pages": [
+              "simple-deposit/react-sdk",
+              "simple-deposit/core-sdk",
+              "simple-deposit/reference"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Social Logins",
         "groups": [
           {
@@ -763,6 +783,22 @@
     {
       "source": "/landing/introduction",
       "destination": "/intro/introduction"
+    },
+    {
+      "source": "/universal-accounts/ua-reference/universal-deposit/overview",
+      "destination": "/simple-deposit/overview"
+    },
+    {
+      "source": "/universal-accounts/ua-reference/universal-deposit/react-sdk",
+      "destination": "/simple-deposit/react-sdk"
+    },
+    {
+      "source": "/universal-accounts/ua-reference/universal-deposit/core-sdk",
+      "destination": "/simple-deposit/core-sdk"
+    },
+    {
+      "source": "/universal-accounts/ua-reference/universal-deposit/reference",
+      "destination": "/simple-deposit/reference"
     }
   ]
 }

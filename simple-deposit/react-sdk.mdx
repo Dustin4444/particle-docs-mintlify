@@ -1,7 +1,7 @@
 ---
-title: "Universal Deposit SDK — React API"
+title: "Simple Deposit — React API"
 sidebarTitle: "React SDK"
-description: "React API reference for the Universal Deposit SDK: DepositProvider, hooks, and UI components."
+description: "React API reference for the Simple Deposit: DepositProvider, hooks, and UI components."
 ---
 
 ## DepositProvider
@@ -9,7 +9,7 @@ description: "React API reference for the Universal Deposit SDK: DepositProvider
 Wraps your app and manages the deposit lifecycle. Handles Auth Core context internally.
 
 ```tsx
-import { DepositProvider, CHAIN } from '@particle-network/universal-deposit/react';
+import { DepositProvider, CHAIN } from '@particle-network/simple-deposit/react';
 
 <DepositProvider config={{
   destination: { chainId: CHAIN.POLYGON },
@@ -41,7 +41,7 @@ import { DepositProvider, CHAIN } from '@particle-network/universal-deposit/reac
 Primary hook. Pass `ownerAddress` to trigger auto-connection and start watching for deposits.
 
 ```tsx
-import { useDeposit } from '@particle-network/universal-deposit/react';
+import { useDeposit } from '@particle-network/simple-deposit/react';
 
 const {
   isReady, depositAddresses, pendingDeposits,
@@ -79,7 +79,7 @@ const {
 Access the full context including recovery and refund methods. Returns everything from `useDeposit` plus:
 
 ```tsx
-import { useDepositContext } from '@particle-network/universal-deposit/react';
+import { useDepositContext } from '@particle-network/simple-deposit/react';
 
 const { client, stuckFunds, recoverFunds, refundDeposit } = useDepositContext();
 ```
@@ -112,7 +112,7 @@ const { client, stuckFunds, recoverFunds, refundDeposit } = useDepositContext();
 Inline deposit UI with token selection, QR code, and activity feed.
 
 ```tsx
-import { DepositWidget } from '@particle-network/universal-deposit/react';
+import { DepositWidget } from '@particle-network/simple-deposit/react';
 
 <DepositWidget fullWidth theme="dark" />
 ```
@@ -134,7 +134,7 @@ import { DepositWidget } from '@particle-network/universal-deposit/react';
 Modal wrapper around `DepositWidget`. Accepts all `DepositWidget` props plus:
 
 ```tsx
-import { DepositModal } from '@particle-network/universal-deposit/react';
+import { DepositModal } from '@particle-network/simple-deposit/react';
 
 <DepositModal isOpen={open} onClose={() => setOpen(false)} />
 ```
@@ -150,7 +150,7 @@ import { DepositModal } from '@particle-network/universal-deposit/react';
 UI for scanning and recovering stuck funds.
 
 ```tsx
-import { RecoveryWidget } from '@particle-network/universal-deposit/react';
+import { RecoveryWidget } from '@particle-network/simple-deposit/react';
 
 <RecoveryWidget autoScan theme="dark" />
 ```
@@ -170,7 +170,7 @@ import { RecoveryWidget } from '@particle-network/universal-deposit/react';
 Modal wrapper around `RecoveryWidget`. Accepts all `RecoveryWidget` props plus:
 
 ```tsx
-import { RecoveryModal } from '@particle-network/universal-deposit/react';
+import { RecoveryModal } from '@particle-network/simple-deposit/react';
 
 <RecoveryModal isOpen={open} onClose={() => setOpen(false)} />
 ```
@@ -186,10 +186,10 @@ import { RecoveryModal } from '@particle-network/universal-deposit/react';
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Core SDK" icon="code" href="/universal-accounts/ua-reference/universal-deposit/core-sdk">
+  <Card title="Core SDK" icon="code" href="/simple-deposit/core-sdk">
     Headless DepositClient for non-React apps.
   </Card>
-  <Card title="Reference" icon="book" href="/universal-accounts/ua-reference/universal-deposit/reference">
+  <Card title="Reference" icon="book" href="/simple-deposit/reference">
     Types, constants, and advanced topics.
   </Card>
 </CardGroup>
