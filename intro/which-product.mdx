@@ -12,26 +12,21 @@ This page helps you pick that stack. Use the flow chart to reason it out, or jum
 
 ## Pick a stack
 
-```mermaid
-flowchart TD
-  Q1{What do you want<br/>to achieve?}
 
-  Q1 -->|Chain-agnostic<br/>user experience| Q2{Need a full chain-agnostic<br/>experience, or just<br/>depositing from any chain?}
-  Q1 -->|Seamless Web 2.0<br/>onboarding| Q3{Do you also want<br/>Web3 wallet<br/>connectivity?}
-  Q1 -->|Simpler account<br/>interactions| AASDK[AA SDK]
+  <img
+    className="block dark:hidden"
+    src="/intro/images/decision-flow.png"
+    alt="Pick a stack"
+  />
 
-  Q2 -->|Full UX: any gas token,<br/>cross-chain deposits & swaps| Q4{Do you have a wallet<br/>provider and<br/>existing users?}
-  Q2 -->|Just depositing<br/>from any chain| UDSDK[Simple Deposit]
+  <img
+    className="hidden dark:block"
+    src="/intro/images/decision-flow.png"
+    alt="Pick a stack"
+  />
 
-  Q4 -->|No| UA_NEW[Universal Accounts SDK<br/>+ Particle Connect or Auth]
-  Q4 -->|Yes| UA_EXT[Universal Accounts SDK<br/>+ your existing provider]
 
-  Q3 -->|Yes| Connect[Particle Connect]
-  Q3 -->|No| Auth[Particle Auth]
 
-  classDef leaf fill:#1f2937,stroke:#6366f1,color:#fff;
-  class AASDK,UDSDK,UA_NEW,UA_EXT,Connect,Auth leaf;
-```
 
 ---
 
