@@ -1,0 +1,156 @@
+---
+title: "Simple Deposit — Quickstart"
+sidebarTitle: "Quickstart"
+description: "Install Simple Deposit and accept cross-chain deposits in minutes."
+---
+
+**Simple Deposit** (`@particle-network/simple-deposit`) lets your app accept deposits from any chain, with funds automatically detected and bridged to your configured destination chain in **USDC**. This guide takes you from install to your first deposit.
+
+<Note>
+  New to Simple Deposit? Start with the [Overview](/simple-deposit/overview) to learn how it works and what it's for.
+</Note>
+
+<Warning>
+  Due to the architecture of Simple Deposit, it is not compatible with Particle **Connectkit** or **Authkit**.
+</Warning>
+
+## Installation
+
+<CodeGroup>
+
+```bash npm
+npm install @particle-network/simple-deposit
+```
+
+```bash yarn
+yarn add @particle-network/simple-deposit
+```
+
+</CodeGroup>
+
+## Quick Start
+
+### 1. Import styles
+
+The React components (`DepositWidget`, `DepositModal`, `RecoveryWidget`, `RecoveryModal`) use Tailwind utility classes. The SDK ships a pre-built CSS file that you must import in your app:
+
+```css
+/* In your global CSS file */
+@import "@particle-network/simple-deposit/styles.css";
+```
+
+Or in a JS/TS entry point:
+
+```ts
+import '@particle-network/simple-deposit/styles.css';
+```
+
+> **Tailwind v4 users:** If you prefer to avoid duplicate utility CSS, you can skip the import above and add an `@source` directive in your CSS instead:
+> ```css
+> @source "../node_modules/@particle-network/simple-deposit/dist/**/*.mjs";
+> ```
+
+### 2. Setup — Wrap your app with `DepositProvider`
+
+```tsx
+import { DepositProvider, CHAIN } from '@particle-network/simple-deposit/react';
+
+function App() {
+  return (
+    <YourAuthProvider>
+      <DepositProvider config={{
+        destination: { chainId: CHAIN.POLYGON },
+        autoSweep: true,
+        minValueUSD: 1,
+      }}>
+        <YourApp />
+      </DepositProvider>
+    </YourAuthProvider>
+  );
+}
+```
+
+### 3. Modal — Open a deposit dialog
+
+```tsx
+import { useDeposit, DepositModal } from '@particle-network/simple-deposit/react';
+
+function Page() {
+  const { address } = useYourWallet();
+  const [open, setOpen] = useState(false);
+  const { isReady } = useDeposit({ ownerAddress: address });
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)} disabled={!isReady}>
+        Deposit
+      </button>
+      <DepositModal isOpen={open} onClose={() => setOpen(false)} />
+    </>
+  );
+}
+```
+
+<Note>
+  The user address above is only used as reference for the deposit account generation, the SDK is fully wallet-agnostic.
+</Note>
+
+### 4. Inline Widget — Embed the deposit UI
+
+```tsx
+import { useDeposit, DepositWidget } from '@particle-network/simple-deposit/react';
+
+function Page() {
+  const { address } = useYourWallet();
+  const { isReady } = useDeposit({ ownerAddress: address });
+
+  if (!isReady) return <Loading />;
+  return <DepositWidget fullWidth />;
+}
+```
+
+### 5. Headless — Build your own UI
+
+```tsx
+import { useDeposit, getChainName } from '@particle-network/simple-deposit/react';
+
+function Page() {
+  const { address } = useYourWallet();
+  const {
+    isReady, depositAddresses, pendingDeposits,
+    recentActivity, status, sweep, currentDestination,
+  } = useDeposit({ ownerAddress: address });
+
+  if (!isReady) return <Loading />;
+
+  return (
+    <div>
+      <p>EVM: {depositAddresses?.evm}</p>
+      <p>Solana: {depositAddresses?.solana}</p>
+      <p>Status: {status}</p>
+      <p>Destination: {getChainName(currentDestination?.chainId)}</p>
+
+      {pendingDeposits.map(d => (
+        <div key={d.id}>
+          {d.token} — ${d.amountUSD.toFixed(2)}
+          <button onClick={() => sweep(d.id)}>Sweep</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="React SDK" icon="react" href="/simple-deposit/react-sdk">
+    DepositProvider, hooks, and UI components.
+  </Card>
+  <Card title="Core SDK" icon="code" href="/simple-deposit/core-sdk">
+    Headless DepositClient for non-React apps.
+  </Card>
+  <Card title="Reference" icon="book" href="/simple-deposit/reference">
+    Types, constants, chain utilities, and advanced topics.
+  </Card>
+</CardGroup>

@@ -1,0 +1,168 @@
+---
+title: "Quickstart"
+sidebarTitle: "Quickstart"
+description: "Run a Universal Account end-to-end from a single Node script in ~5 minutes."
+---
+
+This quickstart runs a Universal Account end-to-end from one Node script — no frontend, no login UI. Install the SDK, initialize a UA from a dev wallet, fetch its unified balance, and send a cross-chain transfer.
+
+For dApp flows with social login or a connected browser wallet, jump to the [Reference implementation](/universal-accounts/reference-implementation), [Integrate with Browser Wallets](/universal-accounts/how-to/provider), or [Using Magic's API Wallet](/universal-accounts/how-to/ua-magic).
+
+<Warning>
+Notice: Universal Accounts are upgrading to V2. This will require a change in account system for your app.
+
+We've begun the migration and need your users to withdraw all funds from the old account. The next version will be deployed shortly after and you can resume operations.
+
+Withdrawals will be available past this date, but you will need to migrate your users to the new account system.
+
+Assets can be withdrawn to any account the user controls, but only via the `createTransferTransaction` method.
+</Warning>
+
+## Prerequisites
+
+- **Node 18+** and an empty directory to run `npm install` in.
+- A **Particle Dashboard project** — copy `projectId`, `clientKey`, and `appId` from [dashboard.particle.network](https://dashboard.particle.network/).
+- A **dev/test wallet private key** — used to sign transactions in this script.
+
+<Warning>
+  **Dev / test only.** The script below loads a private key from an environment variable. That's fine for a local smoke test, but **this pattern is not production-safe**:
+
+  - Never commit `.env` files or hard-code keys to source control.
+  - Production keys belong in a KMS, HSM, or secret manager (AWS KMS, GCP KMS, HashiCorp Vault, etc.).
+  - For a user-facing app, the signer should be a real wallet flow — Particle Auth, a connected browser wallet, or an embedded wallet provider. See [From server to browser](#from-server-to-browser) below.
+</Warning>
+
+---
+
+## 1. Install
+
+Install the SDK, ethers, and dotenv:
+
+<CodeGroup>
+
+```bash npm
+npm install ethers @particle-network/universal-account-sdk dotenv
+```
+
+```bash yarn
+yarn add ethers @particle-network/universal-account-sdk dotenv
+```
+
+</CodeGroup>
+
+Create a `.env` file with your Particle credentials and a test wallet key:
+
+```env .env
+PROJECT_ID="YOUR_PROJECT_ID"
+CLIENT_KEY="YOUR_CLIENT_KEY"
+APP_ID="YOUR_APP_ID"
+PRIVATE_KEY="0x..." # test wallet only — never a production key
+```
+
+---
+
+## 2. Create the signer and Universal Account
+
+Create `script.ts`. Initialize an `ethers.Wallet` from your test key, then pass its address to the Universal Account constructor:
+
+```ts script.ts
+import "dotenv/config";
+import { Wallet, getBytes } from "ethers";
+import { CHAIN_ID, UniversalAccount } from "@particle-network/universal-account-sdk";
+
+// Dev/test wallet — do NOT use a production key here
+const wallet = new Wallet(process.env.PRIVATE_KEY!);
+
+const ua = new UniversalAccount({
+  projectId: process.env.PROJECT_ID!,
+  projectClientKey: process.env.CLIENT_KEY!,
+  projectAppUuid: process.env.APP_ID!,
+  ownerAddress: wallet.address,
+  tradeConfig: {
+    slippageBps: 100, // 1% slippage tolerance
+  },
+});
+```
+
+<Info>
+  Only the EOA address is needed at construction. The wallet comes back in for signing in step 4.
+</Info>
+
+---
+
+## 3. Fetch the unified balance
+
+`getPrimaryAssets()` returns the [Primary Assets](/universal-accounts/chains#primary-assets) the UA holds across every supported chain, plus an aggregated USD total. A non-zero `totalAmountInUSD` confirms the UA is wired end-to-end:
+
+```ts script.ts
+const primaryAssets = await ua.getPrimaryAssets();
+
+console.log("Unified balance (USD):", primaryAssets.totalAmountInUSD);
+```
+
+---
+
+## 4. Send a cross-chain transfer
+
+Build the transfer with `createTransferTransaction()`, sign its `rootHash` bytes with the wallet, then broadcast:
+
+```ts script.ts
+const transaction = await ua.createTransferTransaction({
+  token: {
+    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+    address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", // USDT on Arbitrum
+  },
+  amount: "0.1", // human-readable string
+  receiver: "0xYOUR_RECEIVING_ADDRESS",
+});
+
+const signature = await wallet.signMessage(getBytes(transaction.rootHash));
+
+const result = await ua.sendTransaction(transaction, signature);
+
+console.log(
+  "View on Explorer:",
+  `https://universalx.app/activity/details?id=${result.transactionId}`,
+);
+```
+
+<Info>
+  The UA does **not** need USDT, gas, or any specific asset on Arbitrum. The SDK sources liquidity from the Primary Assets the UA holds across chains and routes them automatically.
+</Info>
+
+Run the script:
+
+```bash Terminal
+npx tsx script.ts
+```
+
+That's it — you've sent your first chain-abstracted transaction from a terminal.
+
+---
+
+## From server to browser
+
+In a real app the signer is rarely a private key on your backend. The UA construction and transaction APIs stay identical — only the signer changes. Swap `ethers.Wallet` for one of:
+
+- **Particle Auth** — social login, embedded wallet. See the [Reference implementation](/universal-accounts/reference-implementation).
+- **A connected browser wallet** (MetaMask, etc.) — see [Integrate with Browser Wallets](/universal-accounts/how-to/provider).
+- **Magic / Dynamic / Privy** — embedded wallets via JWT auth. See [Using Magic's API Wallet](/universal-accounts/how-to/ua-magic).
+
+---
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Reference implementation" icon="code" href="/universal-accounts/reference-implementation">
+    A complete Next.js + Particle Auth example, walked through end-to-end.
+  </Card>
+  <Card title="How-to guides" icon="book" href="/universal-accounts/how-to/overview">
+    Browser wallets, balance widgets, deposit flows, and more.
+  </Card>
+  <Card title="SDK reference" icon="rectangle-terminal" href="/universal-accounts/ua-reference/web/overview">
+    Full Universal Accounts SDK API surface.
+  </Card>
+  <Card title="Server-side examples" icon="server" href="https://github.com/Particle-Network/universal-account-example">
+    More Node.js patterns for running Universal Accounts on a backend.
+  </Card>
+</CardGroup>

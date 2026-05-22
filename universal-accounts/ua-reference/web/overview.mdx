@@ -1,0 +1,183 @@
+---
+title: "Web SDK: Universal Accounts"
+sidebarTitle: "Overview"
+description: "Reference for the Universal Accounts JS/TS SDK — installation, account modes, and links to per-topic pages."
+---
+
+<Warning>
+Notice: Universal Accounts are upgrading to V2. This will require a change in account system for your app.
+
+We've begun the migration and need your users to withdraw all funds from the old account. The next version will be deployed shortly after and you can resume operations. 
+
+Withdrawals will be available past this date, but you will need to migrate your users to the new account system.
+
+Assets can be withdrawn to any account the user controls, but only via the `createTransferTransaction` method.
+
+This does not apply to 7702-based Universal Accounts.
+</Warning>
+
+The **Universal Accounts SDK** provides **chain abstraction** for your app by integrating Universal Accounts. These offer your users a single account, balance, and interaction point across **EVM chains** and **Solana**.
+
+Our SDK integrates with existing connection flows with minimal setup.
+
+<Card title="Learn More About Universal Accounts" icon="user" href="/intro/universal-accounts">
+  What are Universal Accounts, how do they work, and what problems do they solve?
+</Card>
+
+<button
+  onClick={() => window.openNavatticDemo && window.openNavatticDemo()}
+  className="mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors cursor-pointer"
+>
+  Try Interactive Demo
+</button>
+
+## Installation
+
+Once your app is set up, install the **Universal Accounts SDK**:
+
+<Info>
+  The SDK depends on `ethers.js` internally, but you are not required to use it directly. You can use any provider or signer that fits your setup.
+</Info>
+
+<CodeGroup>
+
+```bash yarn
+yarn add @particle-network/universal-account-sdk ethers
+```
+
+
+```bash npm
+npm install @particle-network/universal-account-sdk ethers
+```
+
+</CodeGroup>
+
+## Account Modes
+
+Universal Accounts can operate in two modes, depending on your wallet setup and execution environment:
+
+### 7702 Mode (Default)
+
+Within this mode:
+
+- Your user's existing EOA is upgraded to act directly as a Universal Account.
+- The EOA address and Universal Account address are the same.
+- Assets already held at the user's EOA are immediately usable on their Universal Account—without transferring assets.
+- No smart account deployments needed.
+
+This mode provides the lowest friction and is recommended for most applications.
+
+### Smart Account Mode
+
+Within this mode:
+
+- A separate smart account is attached to your user's EOA.
+- The smart account has its own address, separate from the EOA.
+- Users must transfer assets to the smart account before using it.
+
+This mode exists primarily for compatibility with JSON-RPC wallets.
+
+### Mode Comparison
+
+| Mode           | Account Address | Asset Transfer Required | JSON-RPC Support |
+| -------------- | --------------- | ----------------------- | ---------------- |
+| 7702 (default) | Same as EOA     | No                      | No               |
+| Smart Account  | Separate        | Yes                     | Yes              |
+
+## Integration flow
+
+<Steps>
+  <Step title="Connect a user's account">
+    A user logs in by connecting a wallet or via a social login.
+  </Step>
+  <Step title="Understand account modes">
+    Universal Accounts support two execution modes. Choosing the right one determines how the user's account behaves.
+  </Step>
+  <Step title="Initialize Universal Accounts">
+    Once connected, pass the user's EOA address to the SDK and configure your project details.
+  </Step>
+  <Step title="Use the UA instance">
+    Use the returned Universal Account instance to fetch data and send transactions across chains.
+
+    When sending a transaction, the SDK creates a **UserOperation** and returns a `rootHash`.\
+    This hash must be **signed by the connected EOA**, then passed back into `sendTransaction()` to broadcast.
+  </Step>
+</Steps>
+
+Under the hood, all routing, bridging, and gas abstraction are handled by Particle Network's infrastructure.
+
+## Reference
+
+### Setup
+
+<CardGroup cols="2">
+  <Card title="Initialization & Configuration" icon="gear" href="/universal-accounts/ua-reference/web/initialization">
+    Configure project credentials, account mode, and `tradeConfig`.
+  </Card>
+  <Card title="Addresses" icon="address-card" href="/universal-accounts/ua-reference/web/addresses">
+    Retrieve the owner EOA, EVM UA, and Solana UA addresses.
+  </Card>
+  <Card title="Primary Assets & Unified Balance" icon="coins" href="/universal-accounts/ua-reference/web/balances">
+    Fetch the unified balance and per-chain asset breakdowns.
+  </Card>
+  <Card title="EIP-7702 Compatible Wallets" icon="wallet" href="/universal-accounts/ua-reference/web/eip7702-wallets">
+    Demos and integration notes for Dynamic, Magic, and Privy.
+  </Card>
+</CardGroup>
+
+### Transactions
+
+<CardGroup cols="2">
+  <Card title="Transfer" icon="arrow-right-arrow-left" href="/universal-accounts/ua-reference/web/transactions/transfer">
+    `createTransferTransaction()` — send tokens cross-chain.
+  </Card>
+  <Card title="Custom Payable" icon="code" href="/universal-accounts/ua-reference/web/transactions/custom">
+    `createUniversalTransaction()` — call any contract.
+  </Card>
+  <Card title="Buy" icon="cart-shopping" href="/universal-accounts/ua-reference/web/transactions/buy">
+    `createBuyTransaction()` — buy a token with USD value.
+  </Card>
+  <Card title="Sell" icon="money-bill-trend-up" href="/universal-accounts/ua-reference/web/transactions/sell">
+    `createSellTransaction()` — sell a token into a primary asset.
+  </Card>
+  <Card title="Conversion" icon="right-left" href="/universal-accounts/ua-reference/web/transactions/conversion">
+    `createConvertTransaction()` — convert between primary assets.
+  </Card>
+  <Card title="Solana" icon="circle-s" href="/universal-accounts/ua-reference/web/transactions/solana">
+    Send transactions on Solana from any chain's funds.
+  </Card>
+  <Card title="Transaction Preview" icon="eye" href="/universal-accounts/ua-reference/web/transactions/preview">
+    Inspect fees and token movements before signing.
+  </Card>
+  <Card title="sendTransaction() Response" icon="receipt" href="/universal-accounts/ua-reference/web/transactions/send-response">
+    Full breakdown of the `TransactionResult` object.
+  </Card>
+</CardGroup>
+
+### History & Integration
+
+<CardGroup cols="2">
+  <Card title="Transaction History" icon="clock-rotate-left" href="/universal-accounts/ua-reference/web/history">
+    Fetch a user's past transactions and details.
+  </Card>
+  <Card title="Particle Connect" icon="plug" href="/universal-accounts/ua-reference/web/particle-connect">
+    Sign UA transactions with a wallet from Particle Connect.
+  </Card>
+  <Card title="Backend / Server-side" icon="server" href="/universal-accounts/ua-reference/web/backend">
+    Use Universal Accounts in Node.js with a private key.
+  </Card>
+  <Card title="UniversalX Registration" icon="user-plus" href="/universal-accounts/ua-reference/web/universalx">
+    Register a Universal Account on UniversalX.
+  </Card>
+</CardGroup>
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Quickstart" icon="rocket" href="/universal-accounts/web-quickstart">
+    Build your first Universal Account integration in 5 minutes.
+  </Card>
+  <Card title="FAQ" icon="circle-question" href="/universal-accounts/ua-reference/faq">
+    Common questions about the SDK.
+  </Card>
+</CardGroup>

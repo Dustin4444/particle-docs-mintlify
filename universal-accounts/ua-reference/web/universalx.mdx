@@ -1,0 +1,64 @@
+---
+title: "Registering a UniversalX Account"
+sidebarTitle: "UniversalX Registration"
+description: "Register a Universal Account on UniversalX, the chain-abstracted trading platform built on Universal Accounts."
+---
+
+The **Universal Accounts SDK** also allows you to register an account on [UniversalX](https://universalx.app), a chain-abstracted trading platform built upon **Universal Accounts**.
+
+This can automatically onboard your users into **UniversalX** when they create or initialize a Universal Account. UniversalX registration is optional and only needs to be done **once per UA**.
+
+```ts
+import { UniversalAccount, createUnsignedMessage } from "@particle-network/universal-account-sdk";
+import { randomUUID } from "crypto";
+
+const ua = new UniversalAccount({
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
+  projectClientKey: process.env.NEXT_PUBLIC_CLIENT_KEY!,
+  projectAppUuid: process.env.NEXT_PUBLIC_APP_ID!,
+  ownerAddress: 'USER_ADDRESS',
+});
+
+// Fetch smart account info to get the UA address
+const smartAccountOptions = await ua.getSmartAccountOptions();
+
+// Optional invite code
+const inviteCode = "000000";
+
+// Prepare registration payload
+const deviceId = randomUUID();
+const timestamp = Date.now();
+
+const unsignedMessage = createUnsignedMessage(
+  smartAccountOptions.smartAccountAddress!,
+  deviceId,
+  timestamp
+);
+
+// Sign message using EOA (can be a backend wallet)
+const signature = provider.signMessage(unsignedMessage);
+
+// Register the UniversalX account
+const result = await ua.register(inviteCode, deviceId, timestamp, signature);
+
+if (!!result.token) {
+  console.log("Registration successful.");
+} else {
+  console.error("Registration failed:", result);
+}
+```
+
+<Info>
+  You can also pass an invite code (`"000000"` by default) if you have one.
+</Info>
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Backend / Server-side Usage" icon="server" href="/universal-accounts/ua-reference/web/backend">
+    Construct UA registrations from a Node.js backend.
+  </Card>
+  <Card title="Initialization & Configuration" icon="gear" href="/universal-accounts/ua-reference/web/initialization">
+    Configure project credentials and account mode.
+  </Card>
+</CardGroup>

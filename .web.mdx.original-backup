@@ -377,7 +377,7 @@ Among these, **Primary Assets** are special: they have the deepest liquidity and
 > **Why this matters:** You can give users a _single, unified balance_ of these spendable assets—regardless of which chain they're actually on.
 
 <Note>
-  The full list of supported Primary Assets is available on the [Supported chains and Primary Assets](/universal-accounts/cha/chains#primary-assets) page.
+  The full list of supported Primary Assets is available on the [Supported chains and Primary Assets](/universal-accounts/chains#primary-assets) page.
 </Note>
 
 ### Fetch Unified Balance (quick way)
@@ -655,7 +655,7 @@ console.log("Explorer URL:", `https://universalx.app/activity/details?id=${resul
 
 ## Sending a Conversion Transaction
 
-You can convert [Primary Assets](/universal-accounts/cha/chains#primary-assets) with the `createConvertTransaction` method.
+You can convert [Primary Assets](/universal-accounts/chains#primary-assets) with the `createConvertTransaction` method.
 
 The example below demonstrates how to convert any primary asset into another—USDC on Arbitrum, in this case:
 
@@ -753,7 +753,7 @@ console.log("LP fee (USD):", `$${formatUnits(fee.transactionLPFeeTokenAmountInUS
 ```
 
 <Info>
-  For a full breakdown of the preview structure and practical usage examples, see the [Preview Transaction Details with Universal Accounts](/universal-accounts/cha/how-to/tx-preview) guide.
+  For a full breakdown of the preview structure and practical usage examples, see the [Preview Transaction Details with Universal Accounts](/universal-accounts/how-to/tx-preview) guide.
 </Info>
 
 ## `sendTransaction()` Response Structure

@@ -1,7 +1,7 @@
 ---
-title: "Universal Deposit SDK — Core API"
+title: "Simple Deposit — Core API"
 sidebarTitle: "Core SDK"
-description: "Headless Core API reference for the Universal Deposit SDK: DepositClient constructor, methods, and events."
+description: "Headless Core API reference for the Simple Deposit: DepositClient constructor, methods, and events."
 ---
 
 The `DepositClient` provides full deposit functionality without React. Use it for server-side scripts, Node.js backends, or custom UI frameworks.
@@ -9,7 +9,7 @@ The `DepositClient` provides full deposit functionality without React. Use it fo
 ## DepositClient
 
 ```typescript
-import { DepositClient, CHAIN } from '@particle-network/universal-deposit';
+import { DepositClient, CHAIN } from '@particle-network/simple-deposit';
 
 const client = new DepositClient({
   ownerAddress: '0x...',
@@ -89,7 +89,7 @@ const page2 = await client.getTransactions(2, 10);
 ### Filter by Token and Chain (Cursor-Based)
 
 ```typescript
-import { CHAIN } from '@particle-network/universal-deposit';
+import { CHAIN } from '@particle-network/simple-deposit';
 
 // Get USDC transactions on Ethereum
 const result = await client.getTokenTransactions({
@@ -154,10 +154,10 @@ client.off('deposit:detected', handler);
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="React SDK" icon="react" href="/universal-accounts/ua-reference/universal-deposit/react-sdk">
+  <Card title="React SDK" icon="react" href="/simple-deposit/react-sdk">
     DepositProvider, hooks, and UI components.
   </Card>
-  <Card title="Reference" icon="book" href="/universal-accounts/ua-reference/universal-deposit/reference">
+  <Card title="Reference" icon="book" href="/simple-deposit/reference">
     Types, constants, and advanced topics.
   </Card>
 </CardGroup>

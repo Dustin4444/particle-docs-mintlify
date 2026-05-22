@@ -57,7 +57,7 @@ To start, ensure you have an app set up with a browser-injected EVM wallet like 
     <Info>
       Get your Universal project keys from the [Particle Dashboard](https://dashboard.particle.network/). 
 
-      Find a full rundown of the process on the [Universal Accounts SDK](/universal-accounts/ua-reference/desktop/web) reference page.
+      Find a full rundown of the process on the [Universal Accounts SDK](/universal-accounts/ua-reference/web/overview) reference page.
     </Info>
   </Step>
 </Steps>
@@ -127,7 +127,7 @@ Once you have a Universal Account instance, you can use it to send transactions.
 
 The code below shows how to set up a custom transaction using the user's browser-injected EVM wallet as a signer.
 
-In this case, the funds will be automatically sourced from the user's [Primary Assets](/universal-accounts/cha/chains#primary-assets) and converted into **1 USDT** on **Avalanche**.
+In this case, the funds will be automatically sourced from the user's [Primary Assets](/universal-accounts/chains#primary-assets) and converted into **1 USDT** on **Avalanche**.
 
 ```ts
 import { ethers } from "ethers";
@@ -159,7 +159,7 @@ console.log(`View on Explorer: https://universalx.app/activity/details?id=${resu
 
 This pattern works for all transaction types supported by the SDK.
 
-<Card title="More Transaction Examples" icon="coin" href="/universal-accounts/ua-reference/desktop/web#sending-a-transfer-transaction">
+<Card title="More Transaction Examples" icon="coin" href="/universal-accounts/ua-reference/web/transactions/transfer">
   Check our SDK reference for more transaction examples.
 </Card>
 
@@ -170,10 +170,10 @@ This pattern works for all transaction types supported by the SDK.
 Explore the SDK reference for more advanced capabilities.
 
 <CardGroup cols="2">
-  <Card title="SDK Reference" icon="code" href="/universal-accounts/ua-reference/desktop/web">
+  <Card title="SDK Reference" icon="code" href="/universal-accounts/ua-reference/web/overview">
     Learn more about the SDK APIs.
   </Card>
-  <Card title="Supported Chains" icon="link" href="/universal-accounts/cha/chains">
+  <Card title="Supported Chains" icon="link" href="/universal-accounts/chains">
     See which chains are supported.
   </Card>
 </CardGroup>

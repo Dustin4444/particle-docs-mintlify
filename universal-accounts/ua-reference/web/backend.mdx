@@ -1,0 +1,54 @@
+---
+title: "Backend / Server-side Usage"
+sidebarTitle: "Backend"
+description: "Use the Universal Accounts SDK in Node.js to construct and sign transactions programmatically."
+---
+
+The **Universal Accounts SDK** can also be used in backend environments to construct and sign transactions programmatically.
+
+The example below demonstrates usage with ethers.js and a private key in Node.js:
+
+```ts
+import { UniversalAccount, CHAIN_ID } from "@particle-network/universal-account-sdk";
+import { Wallet, getBytes } from "ethers";
+
+// Initialize wallet
+const wallet = new Wallet("PRIVATE_KEY_OR_MNEMONIC");
+
+// Create a Universal Account instance
+const ua = new UniversalAccount({
+  projectId: "UA_PROJECT_ID",
+  ownerAddress: wallet.address,
+  tradeConfig: {
+    slippageBps: 100,      // Set slippage to 1% (100 basis points)
+    universalGas: true     // Use PARTI tokens to cover gas fees
+  }
+});
+
+// Create a transaction to buy $0.1 worth of ARB on Arbitrum
+const tx = await ua.createBuyTransaction({
+  token: {
+    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+    address: "0x912CE59144191C1204E64559FE8253a0e49E6548" // ARB token contract
+  },
+  amountInUSD: "0.1"
+});
+
+// Sign and send the transaction
+const result = await ua.sendTransaction(tx, wallet.signMessageSync(getBytes(tx.rootHash)));
+
+// Log the transaction result and link to explorer
+console.log("Transaction ID:", result.transactionId);
+console.log("View on Explorer:", `https://universalx.app/activity/details?id=${result.transactionId}`);
+```
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Server-side examples repo" icon="github" href="https://github.com/Particle-Network/universal-account-example">
+    Open-source server-side examples using the Universal Accounts SDK.
+  </Card>
+  <Card title="UniversalX Registration" icon="user-plus" href="/universal-accounts/ua-reference/web/universalx">
+    Register a Universal Account on UniversalX.
+  </Card>
+</CardGroup>

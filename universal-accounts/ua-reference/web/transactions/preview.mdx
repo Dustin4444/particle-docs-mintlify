@@ -1,0 +1,50 @@
+---
+title: "Transaction Preview"
+sidebarTitle: "Preview"
+description: "Inspect fees, token transfers, and metadata before signing a Universal Account transaction."
+---
+
+The transaction object returned by methods like `createTransferTransaction()` provides a full preview of the transaction before it's executed. This includes key details such as estimated fees, token transfers, and other relevant metadata—allowing you to display clear, actionable information to users before confirmation.
+
+For example:
+
+```tsx page.tsx
+const transaction = await universalAccount.createBuyTransaction({
+  token: {
+    chainId: CHAIN_ID.BSC_MAINNET,
+    address: "0x59264f02D301281f3393e1385c0aEFd446Eb0F00", // PARTI token on BNB Chain
+  },
+  amountInUSD: "1",
+});
+```
+
+The returned transaction object includes **metadata** such as **sender** and **recipient** addresses, **tokens** used, and **estimated fees**.
+
+Here's how to extract and display the estimated fees:
+
+```ts page.tsx
+import { formatUnits } from "ethers";
+
+const feeQuote = transaction.feeQuotes[0];
+const fee = feeQuote.fees.totals;
+
+console.log("Total fee (USD):", `$${formatUnits(fee.feeTokenAmountInUSD, 18)}`);
+console.log("Gas fee (USD):", `$${formatUnits(fee.gasFeeTokenAmountInUSD, 18)}`);
+console.log("Service fee (USD):", `$${formatUnits(fee.transactionServiceFeeTokenAmountInUSD, 18)}`);
+console.log("LP fee (USD):", `$${formatUnits(fee.transactionLPFeeTokenAmountInUSD, 18)}`);
+```
+
+<Info>
+  For a full breakdown of the preview structure and practical usage examples, see the [Preview Transaction Details with Universal Accounts](/universal-accounts/how-to/tx-preview) guide.
+</Info>
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Preview transaction details (how-to)" icon="eye" href="/universal-accounts/how-to/tx-preview">
+    Render a transaction preview in your app's UI.
+  </Card>
+  <Card title="sendTransaction() Response" icon="receipt" href="/universal-accounts/ua-reference/web/transactions/send-response">
+    Full breakdown of the `TransactionResult` object.
+  </Card>
+</CardGroup>

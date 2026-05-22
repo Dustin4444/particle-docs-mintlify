@@ -1,0 +1,93 @@
+---
+title: "Introduction"
+sidebarTitle: "Overview"
+description: "Accept deposits from any chain. Funds are automatically detected and bridged to your destination chain in USDC."
+keywords: [
+  'simple deposit sdk',
+  'particle network',
+  'cross-chain deposits',
+  'chain abstraction',
+  'usdc bridging',
+  'deposit addresses'
+]
+---
+
+<Frame caption="The Simple Deposit widget — deposit from any chain in one flow.">
+  <img
+    className="block dark:hidden"
+    src="/simple-deposit/images/deposit-modal.png"
+    alt="Simple Deposit widget"
+    width="400"
+    height="300"
+  />
+
+  <img
+    className="hidden dark:block"
+    src="/simple-deposit/images/deposit-modal.png"
+    alt="Simple Deposit widget"
+    width="400"
+    height="300"
+  />
+</Frame>
+
+## What is Simple Deposit?
+
+**Simple Deposit** (`@particle-network/simple-deposit`) lets your app accept deposits from **any chain**. It gives your users a deposit address for every chain supported by Universal Accounts, with funds automatically detected and bridged to your configured destination chain in **USDC**.
+
+It's the fastest way to add cross-chain deposits to a single-chain app. Your users send funds from wherever their assets already live, and you receive a single, predictable asset on a single chain — no bridging UI, no network switching, and no other changes to your app.
+
+<Card title="Learn More About Universal Accounts" icon="user" href="/intro/universal-accounts">
+  Simple Deposit is powered by Universal Accounts. Learn what they are and how they work.
+</Card>
+
+<Note>
+  Simple Deposit uses **USDC** as the bridged asset. All deposits are automatically converted to USDC and sent to your configured destination chain.
+</Note>
+
+---
+
+## How it works
+
+Simple Deposit is designed for fast, minimum-lift integrations into any app, regardless of the wallet stack you use.
+
+1. The SDK generates EVM and Solana deposit addresses for your user.
+2. Your user sends supported tokens to those addresses from any chain.
+3. The SDK detects each deposit and bridges it to your destination chain as USDC.
+4. Funds are swept to your configured destination address — automatically, or on demand.
+
+Because it's fully wallet-agnostic, Simple Deposit works alongside any wallet provider with no other UX changes. The user's wallet address is only used as a reference for deposit account generation.
+
+<Warning>
+  Due to the architecture of Simple Deposit, it is not compatible with Particle **Connectkit** or **Authkit**.
+</Warning>
+
+---
+
+## Try it live
+
+See Simple Deposit in action before you integrate.
+
+<Card title="Try Live Demo" icon="play" href="https://universal-deposit.vercel.app/">
+  Open the Simple Deposit demo app.
+</Card>
+
+---
+
+## Get started
+
+Get a live integration ready in minutes — install the SDK, then pick the API that fits your app.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/simple-deposit/quickstart">
+    Install the SDK and accept your first deposit in minutes.
+  </Card>
+  <Card title="React SDK" icon="react" href="/simple-deposit/react-sdk">
+    DepositProvider, hooks, and UI components.
+  </Card>
+  <Card title="Core SDK" icon="code" href="/simple-deposit/core-sdk">
+    Headless DepositClient for server-side and non-React apps.
+  </Card>
+  <Card title="Reference" icon="book" href="/simple-deposit/reference">
+    Types, constants, chain utilities, and advanced topics.
+  </Card>
+</CardGroup>

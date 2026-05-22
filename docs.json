@@ -65,19 +65,12 @@
             "group": "OVERVIEW",
             "pages": [
               "intro/introduction",
-              "intro/what-is-particle-network",
-              "intro/what-is-cha",
-              "intro/what-is-ul"
+              "intro/which-product",
+              "intro/what-is-cha"
+
             ]
           },
-          {
-            "group": "PARTICLE PRODUCTS",
-            "pages": [
-              "intro/universal-accounts",
-              "intro/social-logins",
-              "intro/account-abstraction"
-            ]
-          },
+
           {
             "group": "MORE RESOURCES",
             "pages": [
@@ -102,22 +95,25 @@
           {
             "group": "OVERVIEW",
             "pages": [
-              "universal-accounts/cha/overview",
-              "universal-accounts/cha/chains",
+              "universal-accounts/overview",
+              "universal-accounts/chains",
               {
                 "group": "Quickstart",
-                "pages": ["universal-accounts/cha/web-quickstart"]
+                "pages": [
+                  "universal-accounts/web-quickstart",
+                  "universal-accounts/reference-implementation"
+                ]
               },
               {
                 "group": "How-to",
                 "pages": [
-                  "universal-accounts/cha/how-to/overview",
-                  "universal-accounts/cha/how-to/provider",
-                  "universal-accounts/cha/how-to/balances",
-                  "universal-accounts/cha/how-to/deposit-flow",
-                  "universal-accounts/cha/how-to/tx-preview",
-                  "universal-accounts/cha/how-to/conversions",
-                  "universal-accounts/cha/how-to/ua-magic"
+                  "universal-accounts/how-to/overview",
+                  "universal-accounts/how-to/provider",
+                  "universal-accounts/how-to/balances",
+                  "universal-accounts/how-to/deposit-flow",
+                  "universal-accounts/how-to/tx-preview",
+                  "universal-accounts/how-to/conversions",
+                  "universal-accounts/how-to/ua-magic"
                 ]
               },
               "universal-accounts/live-integrations",
@@ -125,30 +121,38 @@
 
             ]
           },
-          {
-            "group": "LEARN",
-            "pages": [
-              {
-                "group": "Chain Abstracted Apps Development Course",
-                "pages": [
-                  "universal-accounts/cha/ua-course/intro",
-                  "universal-accounts/cha/ua-course/lesson-1",
-                  "universal-accounts/cha/ua-course/lesson-2",
-                  "universal-accounts/cha/ua-course/lesson-3"
-                ]
-              }
-            ]
-          },
+
           {
             "group": "SDK Reference",
             "pages": [
-              "universal-accounts/ua-reference/desktop/web",
-              "universal-accounts/ua-reference/desktop/eip7702-wallets",
+              "universal-accounts/ua-reference/web/overview",
+              "universal-accounts/ua-reference/web/initialization",
+              "universal-accounts/ua-reference/web/addresses",
+              "universal-accounts/ua-reference/web/balances",
+              {
+                "group": "Transactions",
+                "pages": [
+                  "universal-accounts/ua-reference/web/transactions/transfer",
+                  "universal-accounts/ua-reference/web/transactions/custom",
+                  "universal-accounts/ua-reference/web/transactions/buy",
+                  "universal-accounts/ua-reference/web/transactions/sell",
+                  "universal-accounts/ua-reference/web/transactions/conversion",
+                  "universal-accounts/ua-reference/web/transactions/solana",
+                  "universal-accounts/ua-reference/web/transactions/preview",
+                  "universal-accounts/ua-reference/web/transactions/send-response"
+                ]
+              },
+              "universal-accounts/ua-reference/web/history",
+              "universal-accounts/ua-reference/web/particle-connect",
+              "universal-accounts/ua-reference/web/backend",
+              "universal-accounts/ua-reference/web/universalx",
+              "universal-accounts/ua-reference/web/eip7702-wallets",
               "universal-accounts/ua-reference/faq"
             ]
           }
         ]
       },
+
       {
         "tab": "Social Logins",
         "groups": [
@@ -420,6 +424,78 @@
 
   "redirects": [
     {
+      "source": "/universal-accounts/ua-reference/desktop/web",
+      "destination": "/universal-accounts/ua-reference/web/overview"
+    },
+    {
+      "source": "/universal-accounts/ua-reference/desktop/eip7702-wallets",
+      "destination": "/universal-accounts/ua-reference/web/eip7702-wallets"
+    },
+    {
+      "source": "/universal-accounts/cha/overview",
+      "destination": "/universal-accounts/overview"
+    },
+    {
+      "source": "/universal-accounts/cha/chains",
+      "destination": "/universal-accounts/chains"
+    },
+    {
+      "source": "/universal-accounts/cha/web-quickstart",
+      "destination": "/universal-accounts/web-quickstart"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/overview",
+      "destination": "/universal-accounts/how-to/overview"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/provider",
+      "destination": "/universal-accounts/how-to/provider"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/balances",
+      "destination": "/universal-accounts/how-to/balances"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/deposit-flow",
+      "destination": "/universal-accounts/how-to/deposit-flow"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/tx-preview",
+      "destination": "/universal-accounts/how-to/tx-preview"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/conversions",
+      "destination": "/universal-accounts/how-to/conversions"
+    },
+    {
+      "source": "/universal-accounts/cha/how-to/ua-magic",
+      "destination": "/universal-accounts/how-to/ua-magic"
+    },
+    {
+      "source": "/universal-accounts/cha/ua-course/intro",
+      "destination": "/universal-accounts/ua-course/intro"
+    },
+    {
+      "source": "/universal-accounts/cha/ua-course/lesson-1",
+      "destination": "/universal-accounts/ua-course/lesson-1"
+    },
+    {
+      "source": "/universal-accounts/cha/ua-course/lesson-2",
+      "destination": "/universal-accounts/ua-course/lesson-2"
+    },
+    {
+      "source": "/universal-accounts/cha/ua-course/lesson-3",
+      "destination": "/universal-accounts/ua-course/lesson-3"
+    },
+    {
+      "source": "/intro/what-is-particle-network",
+      "destination": "/intro/introduction"
+    },
+    {
+      "source": "/intro/what-is-ul",
+      "destination": "/intro/what-is-cha"
+    },
+    {
       "source": "/docs/what-is-particle-network",
       "destination": "/intro/what-is-particle-network"
     },
@@ -690,6 +766,22 @@
     {
       "source": "/landing/introduction",
       "destination": "/intro/introduction"
+    },
+    {
+      "source": "/universal-accounts/ua-reference/universal-deposit/overview",
+      "destination": "/simple-deposit/overview"
+    },
+    {
+      "source": "/universal-accounts/ua-reference/universal-deposit/react-sdk",
+      "destination": "/simple-deposit/react-sdk"
+    },
+    {
+      "source": "/universal-accounts/ua-reference/universal-deposit/core-sdk",
+      "destination": "/simple-deposit/core-sdk"
+    },
+    {
+      "source": "/universal-accounts/ua-reference/universal-deposit/reference",
+      "destination": "/simple-deposit/reference"
     }
   ]
 }

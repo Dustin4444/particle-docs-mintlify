@@ -1,0 +1,64 @@
+---
+title: "Using Particle Connect with Universal Accounts"
+sidebarTitle: "Particle Connect"
+description: "Sign and broadcast Universal Account transactions using a wallet connected via Particle Connect."
+---
+
+<Note>
+  The following example uses **Particle Connect** instead of Particle Auth. It shows how to sign and send a Universal Account transaction using a connected wallet.
+</Note>
+
+When using **Particle Connect**, you can access the connected wallet through the `useWallets()` hook. The `primaryWallet` object exposes a `walletClient`, which acts as the signer.
+
+This lets you sign the **Universal Account transaction** payload (rootHash) using any **wallet** connected via **Particle Connect**.
+
+The following code snippet shows how to use the **Universal Accounts SDK** to sign a transaction with Particle Connect:
+
+```tsx
+import { useWallets, useAccount } from "@particle-network/connectkit";
+import { CHAIN_ID } from "@particle-network/universal-account-sdk";
+
+// Get wallet from Particle Connect
+const [primaryWallet] = useWallets();
+const walletClient = primaryWallet?.getWalletClient();
+const { address } = useAccount();
+
+// Create a cross-chain transfer transaction via Universal Accounts
+const transaction = await ua.createTransferTransaction({
+  token: {
+    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+    address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", // USDT on Arbitrum
+  },
+  amount: "0.1", // Amount to send (human-readable string)
+  receiver: receiverAddress, // Target address
+});
+
+// Sign the transaction's root hash using connected wallet
+const signature = await walletClient?.signMessage({
+  account: address as `0x${string}`,
+  message: { raw: transaction.rootHash },
+});
+
+// Send the signed transaction via Universal Account SDK
+const sendResult = await universalAccount.sendTransaction(
+  transaction,
+  signature
+);
+
+// Log UniversalX explorer link
+console.log(
+  "Explorer URL:",
+  `https://universalx.app/activity/details?id=${sendResult.transactionId}`
+);
+```
+
+## Next steps
+
+<CardGroup cols="2">
+  <Card title="Backend / Server-side Usage" icon="server" href="/universal-accounts/ua-reference/web/backend">
+    Use Universal Accounts in Node.js with a private key.
+  </Card>
+  <Card title="Transfer Transaction" icon="arrow-right-arrow-left" href="/universal-accounts/ua-reference/web/transactions/transfer">
+    Reference for `createTransferTransaction()`.
+  </Card>
+</CardGroup>
