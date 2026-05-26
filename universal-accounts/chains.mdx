@@ -32,9 +32,7 @@ description: "A list of the blockchains and Primary Assets supported by Universa
 - **Solana** — Chain ID: **101**
 
 <Note>
-  This list is regularly updated as support for new chains is added. All
-  supported chains can be accessed through a single Universal Account—no
-  separate wallets or setups required.
+  This list is regularly updated as support for new chains is added. All supported chains can be accessed through a single Universal Account—no separate wallets or setups required.
 </Note>
 
 ## Primary Assets
@@ -44,16 +42,15 @@ description: "A list of the blockchains and Primary Assets supported by Universa
 <Note>
   Currently, the list of Primary Assets includes:
 
-- **ETH**
-- **USDT**
-- **USDC**
-- **BTC**
-- **SOL**
-- **BNB**
-
+  - **ETH**
+  - **USDT**
+  - **USDC**
+  - **BTC**
+  - **SOL**
+  - **BNB**
 </Note>
 
-When a user sends a transaction (e.g. swapping a token), the SDK will:
+When a user sends a transaction (e.g., swapping a token), the SDK will:
 
 - Identify the optimal Primary Asset from the user’s portfolio. For example, it may select USDC on Polygon to allow a user to purchase a memecoin on Solana.
 - Route liquidity across all the chains the user holds this Primary Asset using Universal Liquidity.
