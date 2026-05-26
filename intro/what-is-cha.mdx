@@ -44,8 +44,9 @@ With **Universal Accounts**, users and developers interact with Web3 as if it we
 - No need to manage cross-chain deployments.
 - Unified liquidity, handled automatically in the background.
 
+<Frame caption="For a semi-technical, action-packed Universal Accounts showcase, watch our official cinematic explainer!">
 <iframe className="w-full aspect-video rounded-xl" src="https://www.youtube.com/embed/JmEcDiZnsGo" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-
+</Frame>
 ---
 
 ## Powered by Universal Liquidity
@@ -74,13 +75,13 @@ A **solver** is simply an **on-chain entity** with liquidity (e.g., an **LP** ho
 
 A user holds:
 
-- **100 USDC** on Base
-- **0.1 BNB** (~\$90) on BNB Chain
-- **0.3 SOL** (~\$40) on Solana
+- **50 USDC** on BNB Chain
+- **50 USDC** on Solana
 
-They want to execute a transaction that requires **200 USDC on Ethereum**. A solver provides **200 USDC** on Ethereum and then receives **repayment** across the user’s existing balances, plus a small **fee**.
+They want to spend **100 USDC** on Base.
 
-<Frame caption="Universal Liquidity visualized.">
+A solver aggregates liquidity across the user’s balances, fronts the required funds on Base, executes the transaction, and later settles repayment across the user’s assets plus a small fee.
+<Frame caption="Universal Liquidity in action.">
   <img
     className="block dark:hidden"
     alt="Universal Liquidity"
@@ -103,7 +104,7 @@ They want to execute a transaction that requires **200 USDC on Ethereum**. A sol
 
 ## Gas Abstraction
 
-Universal Liquidity also removes the requirement to hold **native gas tokens** on every chain. **Paymasters** cover **gas fees** on user’s behalf, then settle repayment afterward using **any supported asset**—even if that asset is on another chain.
+Universal Liquidity also removes the requirement to hold **native gas tokens** on every chain. **Paymasters** cover **gas fees** on user’s behalf, then settle repayment [afterward using **any supported asset**](/universal-accounts/chains)—even if that asset is on another chain.
 
 This looks as follows:
 

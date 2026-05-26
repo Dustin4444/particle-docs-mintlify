@@ -55,6 +55,7 @@ When a user sends a transaction (e.g., swapping a token), the SDK will:
 - Identify the optimal Primary Asset from the user’s portfolio. For example, it may select USDC on Polygon to allow a user to purchase a memecoin on Solana.
 - Route liquidity across all the chains the user holds this Primary Asset using Universal Liquidity.
 - Complete the transaction on the destination chain, even if the user holds **no assets on that chain**.
+- Automatically handle gas payments by using any available Primary Asset, even if that asset is on another chain or the gas token is a completely different token.
 
 ### Availability by Chain
 
